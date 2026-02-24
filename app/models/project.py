@@ -19,6 +19,7 @@ class Project(db.Model):
     order = db.Column(db.Integer, nullable=False, default=0)
     is_visible = db.Column(db.Boolean, nullable=False, default=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     @property
     def tags_list(self) -> list[str]:
