@@ -48,7 +48,9 @@ set FLASK_CONFIG=development
 echo [3/3] Ready.
 echo.
 echo  Useful commands (run in this terminal after activation):
-echo    flask init-db              -- create database tables
+echo    flask db init                    -- (first time only) init migrations folder
+echo    flask db migrate -m "message"    -- generate migration after model changes
+echo    flask db upgrade                 -- apply pending migrations to the DB
 echo    flask create-admin ^<user^> ^<pass^>  -- create the admin account
 echo.
 echo  Starting Flask dev server at http://127.0.0.1:5000

@@ -5,7 +5,7 @@ from flask.cli import with_appcontext
 from config import config
 
 from .errors import register_error_handlers
-from .extensions import csrf, db, login_manager
+from .extensions import csrf, db, login_manager, migrate
 
 
 def create_app(config_name: str = "default") -> Flask:
@@ -15,6 +15,7 @@ def create_app(config_name: str = "default") -> Flask:
 
     # Extensions
     db.init_app(app)
+    migrate.init_app(app, db)
     login_manager.init_app(app)
     csrf.init_app(app)
 
@@ -37,21 +38,12 @@ def create_app(config_name: str = "default") -> Flask:
         return {"now": datetime.utcnow()}
 
     # CLI commands
-    app.cli.add_command(init_db_command)
     app.cli.add_command(create_admin_command)
 
     return app
 
 
 # ── CLI commands ──────────────────────────────────────────────────────────────
-
-@click.command("init-db")
-@with_appcontext
-def init_db_command():
-    """Create all database tables."""
-    db.create_all()
-    click.echo("Database tables created.")
-
 
 @click.command("create-admin")
 @click.argument("username")
@@ -61,7 +53,6 @@ def create_admin_command(username: str, password: str):
     """Create (or reset) the admin user account."""
     from .models.user import User
 
-    db.create_all()
     user = User.query.filter_by(username=username).first()
     if user:
         user.set_password(password)
