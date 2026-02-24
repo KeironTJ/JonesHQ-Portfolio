@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {{ "Edit Project" if project else "Add Project" }} — Admin
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <div class="d-flex align-items-center mb-4 gap-3">
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>Back
+    </a>
+    <div>
+      <p class="text-primary fw-semibold small text-uppercase mb-0">Admin</p>
+      <h1 class="h4 fw-bold mb-0">
+        {{ "Edit: " + project.title if project else "Add Project" }}
+      </h1>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="jhq-feature-card p-4 p-md-5">
+        <form method="post" novalidate>
+          {{ form.hidden_tag() }}
+
+          <!-- Title + Slug -->
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              {{ form.title.label(class="form-label") }}
+              {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else ""),
+                            id="project-title", placeholder="e.g. Family HQ") }}
+              {% for error in form.title.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-md-6">
+              {{ form.slug.label(class="form-label") }}
+              <div class="input-group">
+                <span class="input-group-text text-muted">/</span>
+                {{ form.slug(class="form-control font-monospace" + (" is-invalid" if form.slug.errors else ""),
+                             id="project-slug", placeholder="e.g. family-hq") }}
+                {% for error in form.slug.errors %}
+                  <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+              </div>
+              <div class="form-text">Lowercase, numbers and hyphens only.</div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="mb-3">
+            {{ form.description.label(class="form-label") }}
+            {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""),
+                                rows=4, placeholder="What does this project do?") }}
+            {% for error in form.description.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <!-- Tags -->
+          <div class="mb-3">
+            {{ form.tags.label(class="form-label") }}
+            {{ form.tags(class="form-control" + (" is-invalid" if form.tags.errors else ""),
+                         placeholder="Python, Flask, Bootstrap") }}
+            {% for error in form.tags.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+            <div class="form-text">{{ form.tags.description }}</div>
+          </div>
+
+          <!-- Icon -->
+          <div class="mb-3">
+            {{ form.icon.label(class="form-label") }}
+            <div class="input-group">
+              {{ form.icon(class="form-control font-monospace" + (" is-invalid" if form.icon.errors else ""),
+                           id="project-icon", placeholder="bi-code-square") }}
+              <span class="input-group-text" id="icon-preview" title="Icon preview">
+                <i class="bi bi-code-square fs-5" id="icon-preview-el"></i>
+              </span>
+              {% for error in form.icon.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+              {% endfor %}
+            </div>
+            <div class="form-text">
+              {{ form.icon.description }} —
+              <a href="https://icons.getbootstrap.com" target="_blank" rel="noopener">Browse icons</a>
+            </div>
+          </div>
+
+          <!-- URLs -->
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              {{ form.url.label(class="form-label") }}
+              {{ form.url(class="form-control" + (" is-invalid" if form.url.errors else ""),
+                          placeholder="https://myproject.example.com") }}
+              {% for error in form.url.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-md-6">
+              {{ form.repo_url.label(class="form-label") }}
+              {{ form.repo_url(class="form-control" + (" is-invalid" if form.repo_url.errors else ""),
+                               placeholder="https://github.com/user/repo") }}
+              {% for error in form.repo_url.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Order + Visibility -->
+          <div class="row g-3 mb-4 align-items-end">
+            <div class="col-sm-4">
+              {{ form.order.label(class="form-label") }}
+              {{ form.order(class="form-control" + (" is-invalid" if form.order.errors else "")) }}
+              {% for error in form.order.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+              {% endfor %}
+              <div class="form-text">{{ form.order.description }}</div>
+            </div>
+            <div class="col-sm-8 pb-1">
+              <div class="form-check">
+                {{ form.is_visible(class="form-check-input") }}
+                {{ form.is_visible.label(class="form-check-label") }}
+              </div>
+              <div class="form-text">Hidden projects are not shown on the public portfolio.</div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2">
+            {{ form.submit(class="btn btn-primary") }}
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+    <!-- Sidebar hint -->
+    <div class="col-lg-4 mt-4 mt-lg-0">
+      <div class="jhq-feature-card p-4">
+        <h2 class="h6 fw-bold mb-3">
+          <i class="bi bi-info-circle text-primary me-2"></i>Tips
+        </h2>
+        <ul class="text-muted small mb-0 ps-3">
+          <li class="mb-2">Slug is auto-filled from the title — edit it manually if needed.</li>
+          <li class="mb-2">Tags are comma-separated: <code>Python, Flask</code></li>
+          <li class="mb-2">Leave URLs blank if not applicable.</li>
+          <li class="mb-2">Lower <strong>display order</strong> = appears first on the page.</li>
+          <li>Toggle <strong>Visible</strong> to hide a project without deleting it.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    // Auto-slug from title
+    var titleEl = document.getElementById('project-title');
+    var slugEl  = document.getElementById('project-slug');
+    var slugTouched = slugEl.value.length > 0 && {{ 'true' if project else 'false' }};
+
+    slugEl.addEventListener('input', function () { slugTouched = true; });
+
+    titleEl.addEventListener('input', function () {
+      if (slugTouched) return;
+      slugEl.value = titleEl.value
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-');
+    });
+
+    // Live icon preview
+    var iconEl    = document.getElementById('project-icon');
+    var previewEl = document.getElementById('icon-preview-el');
+
+    function updatePreview() {
+      previewEl.className = 'bi ' + (iconEl.value.trim() || 'bi-code-square') + ' fs-5';
+    }
+
+    iconEl.addEventListener('input', updatePreview);
+    updatePreview();
+  })();
+</script>
+{% endblock %}

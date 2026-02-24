@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Site Settings — Admin{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <div class="d-flex align-items-center mb-4 gap-3">
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>Back
+    </a>
+    <div>
+      <p class="text-primary fw-semibold small text-uppercase mb-0">Admin</p>
+      <h1 class="h4 fw-bold mb-0">Site Settings</h1>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-7">
+      <div class="jhq-feature-card p-4 p-md-5">
+        <form method="post" novalidate>
+          {{ form.hidden_tag() }}
+
+          <!-- Identity -->
+          <h2 class="h6 fw-bold text-muted text-uppercase small letter-spacing-1 mb-3">
+            Identity
+          </h2>
+
+          <div class="mb-3">
+            {{ form.display_name.label(class="form-label") }}
+            {{ form.display_name(class="form-control" + (" is-invalid" if form.display_name.errors else ""),
+                                 placeholder="Keiron Jones") }}
+            {% for error in form.display_name.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+            <div class="form-text">{{ form.display_name.description }}</div>
+          </div>
+
+          <div class="mb-4">
+            {{ form.bio.label(class="form-label") }}
+            {{ form.bio(class="form-control" + (" is-invalid" if form.bio.errors else ""),
+                        rows=3,
+                        placeholder="A collection of personal projects...") }}
+            {% for error in form.bio.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+            <div class="form-text">{{ form.bio.description }}</div>
+          </div>
+
+          <hr class="my-4">
+
+          <!-- Social links -->
+          <h2 class="h6 fw-bold text-muted text-uppercase small letter-spacing-1 mb-3">
+            Social Links
+          </h2>
+          <p class="text-muted small mb-3">Leave blank to hide the button on the homepage.</p>
+
+          <div class="mb-3">
+            <label class="form-label">
+              <i class="bi bi-github me-1"></i>{{ form.github_url.label.text }}
+            </label>
+            {{ form.github_url(class="form-control" + (" is-invalid" if form.github_url.errors else ""),
+                               placeholder="https://github.com/KeironTJ") }}
+            {% for error in form.github_url.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">
+              <i class="bi bi-linkedin me-1"></i>{{ form.linkedin_url.label.text }}
+            </label>
+            {{ form.linkedin_url(class="form-control" + (" is-invalid" if form.linkedin_url.errors else ""),
+                                 placeholder="https://linkedin.com/in/yourprofile") }}
+            {% for error in form.linkedin_url.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">
+              <i class="bi bi-twitter-x me-1"></i>{{ form.twitter_url.label.text }}
+            </label>
+            {{ form.twitter_url(class="form-control" + (" is-invalid" if form.twitter_url.errors else ""),
+                                placeholder="https://x.com/yourhandle") }}
+            {% for error in form.twitter_url.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          {{ form.submit(class="btn btn-primary") }}
+
+        </form>
+      </div>
+    </div>
+
+    <!-- Preview hint -->
+    <div class="col-lg-5 mt-4 mt-lg-0">
+      <div class="jhq-feature-card p-4">
+        <h2 class="h6 fw-bold mb-3">
+          <i class="bi bi-eye text-primary me-2"></i>Preview
+        </h2>
+        <p class="text-muted small mb-3">
+          Changes here update the homepage hero section in real time once saved.
+        </p>
+        <div class="border rounded p-3 small" style="background: var(--bs-tertiary-bg);">
+          <p class="text-primary fw-semibold text-uppercase mb-1" style="font-size:0.7rem; letter-spacing:.08em;">
+            Hi, I'm
+          </p>
+          <p class="fw-bold mb-1 fs-5" id="preview-name">{{ settings.display_name }}</p>
+          <p class="text-muted mb-2" style="font-size:0.8rem;" id="preview-bio">{{ settings.bio }}</p>
+          <div class="d-flex gap-1 flex-wrap">
+            {% if settings.github_url %}
+              <span class="badge bg-secondary">
+                <i class="bi bi-github me-1"></i>GitHub
+              </span>
+            {% endif %}
+            {% if settings.linkedin_url %}
+              <span class="badge bg-secondary">
+                <i class="bi bi-linkedin me-1"></i>LinkedIn
+              </span>
+            {% endif %}
+            {% if settings.twitter_url %}
+              <span class="badge bg-secondary">
+                <i class="bi bi-twitter-x me-1"></i>X
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        <p class="text-muted small mt-3 mb-0">
+          <a href="{{ url_for('main.index') }}" target="_blank" class="text-decoration-none">
+            <i class="bi bi-box-arrow-up-right me-1"></i>Open homepage
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    var nameInput = document.querySelector('[name="display_name"]');
+    var bioInput  = document.querySelector('[name="bio"]');
+    var prevName  = document.getElementById('preview-name');
+    var prevBio   = document.getElementById('preview-bio');
+
+    if (nameInput && prevName) {
+      nameInput.addEventListener('input', function () {
+        prevName.textContent = nameInput.value || 'Your Name';
+      });
+    }
+    if (bioInput && prevBio) {
+      bioInput.addEventListener('input', function () {
+        prevBio.textContent = bioInput.value || 'Your bio...';
+      });
+    }
+  })();
+</script>
+{% endblock %}

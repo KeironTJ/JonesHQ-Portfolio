@@ -35,7 +35,14 @@ def create_app(config_name: str = "default") -> Flask:
     @app.context_processor
     def inject_globals():
         from datetime import datetime
-        return {"now": datetime.utcnow()}
+        from sqlalchemy.exc import OperationalError
+        from .models.settings import SiteSettings
+        try:
+            site_settings = SiteSettings.get()
+        except OperationalError:
+            # DB not yet migrated — return defaults so templates don't break
+            site_settings = SiteSettings()
+        return {"now": datetime.utcnow(), "settings": site_settings}
 
     # CLI commands
     app.cli.add_command(create_admin_command)

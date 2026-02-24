@@ -5,55 +5,117 @@
 {% block content %}
 <div class="container py-5">
 
+  <!-- Header -->
   <div class="d-flex align-items-center justify-content-between mb-5">
     <div>
       <p class="text-primary fw-semibold small text-uppercase mb-1">Admin</p>
       <h1 class="h3 fw-bold mb-0">Dashboard</h1>
     </div>
-    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">
-      <i class="bi bi-shield-check me-1"></i>{{ current_user.username }}
-    </span>
+    <div class="d-flex align-items-center gap-2">
+      <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">
+        <i class="bi bi-shield-check me-1"></i>{{ current_user.username }}
+      </span>
+      <a href="{{ url_for('admin.project_new') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Add Project
+      </a>
+    </div>
   </div>
 
-  <!-- Quick actions -->
-  <div class="row g-4 mb-5">
-    <div class="col-sm-6 col-md-4">
-      <div class="jhq-feature-card p-4 text-center h-100">
-        <div class="jhq-card-icon mb-3">
-          <i class="bi bi-plus-circle fs-3 text-primary"></i>
-        </div>
-        <h3 class="h6 fw-bold mb-2">Add Project</h3>
-        <p class="text-muted small mb-3">Publish a new project to the portfolio.</p>
-        <a href="#" class="btn btn-sm btn-primary disabled">
-          Coming soon
-        </a>
+  <!-- Projects table -->
+  {% if projects %}
+    <div class="jhq-feature-card overflow-hidden">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="table-group-divider">
+            <tr>
+              <th style="width:3rem" class="text-center text-muted small">#</th>
+              <th style="width:2.5rem"></th>
+              <th>Title / Slug</th>
+              <th class="d-none d-md-table-cell">Tags</th>
+              <th class="text-center" style="width:7rem">Visible</th>
+              <th class="text-end" style="width:9rem">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for project in projects %}
+              <tr>
+                <!-- Order -->
+                <td class="text-center text-muted small">{{ project.order }}</td>
+
+                <!-- Icon -->
+                <td class="text-center">
+                  <i class="bi {{ project.icon }} fs-5 text-primary"></i>
+                </td>
+
+                <!-- Title + slug -->
+                <td>
+                  <span class="fw-semibold">{{ project.title }}</span>
+                  <br>
+                  <span class="text-muted font-monospace small">/{{ project.slug }}</span>
+                </td>
+
+                <!-- Tags (hidden on small screens) -->
+                <td class="d-none d-md-table-cell">
+                  <div class="d-flex flex-wrap gap-1">
+                    {% for tag in project.tags_list %}
+                      <span class="badge jhq-badge">{{ tag }}</span>
+                    {% endfor %}
+                  </div>
+                </td>
+
+                <!-- Visible toggle -->
+                <td class="text-center">
+                  <form action="{{ url_for('admin.project_toggle', id=project.id) }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit"
+                            class="btn btn-sm {{ 'btn-success' if project.is_visible else 'btn-outline-secondary' }}"
+                            title="{{ 'Visible — click to hide' if project.is_visible else 'Hidden — click to show' }}">
+                      <i class="bi {{ 'bi-eye' if project.is_visible else 'bi-eye-slash' }}"></i>
+                    </button>
+                  </form>
+                </td>
+
+                <!-- Edit / Delete -->
+                <td class="text-end">
+                  <a href="{{ url_for('admin.project_edit', id=project.id) }}"
+                     class="btn btn-sm btn-outline-primary me-1" title="Edit">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <form action="{{ url_for('admin.project_delete', id=project.id) }}"
+                        method="post" class="d-inline"
+                        onsubmit="return confirm('Delete \'{{ project.title }}\'? This cannot be undone.')">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </td>
+
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
-    <div class="col-sm-6 col-md-4">
-      <div class="jhq-feature-card p-4 text-center h-100">
-        <div class="jhq-card-icon mb-3">
-          <i class="bi bi-pencil-square fs-3 text-primary"></i>
-        </div>
-        <h3 class="h6 fw-bold mb-2">Edit Projects</h3>
-        <p class="text-muted small mb-3">Update titles, descriptions, and links.</p>
-        <a href="#" class="btn btn-sm btn-outline-secondary disabled">
-          Coming soon
-        </a>
+
+    <p class="text-muted small mt-2">
+      {{ projects | length }} project{{ 's' if projects | length != 1 }}.
+      Hidden projects won't appear on the public portfolio.
+    </p>
+
+  {% else %}
+    <!-- Empty state -->
+    <div class="jhq-feature-card p-5 text-center">
+      <div class="jhq-card-icon mx-auto mb-3">
+        <i class="bi bi-folder-plus fs-3 text-primary"></i>
       </div>
+      <h2 class="h5 fw-bold mb-2">No projects yet</h2>
+      <p class="text-muted mb-4">Add your first project to have it appear on the portfolio.</p>
+      <a href="{{ url_for('admin.project_new') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Add Project
+      </a>
     </div>
-    <div class="col-sm-6 col-md-4">
-      <div class="jhq-feature-card p-4 text-center h-100">
-        <div class="jhq-card-icon mb-3">
-          <i class="bi bi-house fs-3 text-primary"></i>
-        </div>
-        <h3 class="h6 fw-bold mb-2">View Site</h3>
-        <p class="text-muted small mb-3">See the public-facing portfolio page.</p>
-        <a href="{{ url_for('main.index') }}" class="btn btn-sm btn-outline-secondary">
-          <i class="bi bi-box-arrow-up-right me-1"></i>Open
-        </a>
-      </div>
-    </div>
-  </div>
+  {% endif %}
 
 </div>
 {% endblock %}

@@ -1,0 +1,77 @@
+from flask_wtf import FlaskForm
+from wtforms import (
+    BooleanField,
+    IntegerField,
+    StringField,
+    SubmitField,
+    TextAreaField,
+)
+from wtforms.validators import URL, DataRequired, Length, Optional, Regexp
+
+
+class ProjectForm(FlaskForm):
+    title = StringField("Title", validators=[DataRequired(), Length(max=128)])
+    slug = StringField(
+        "Slug",
+        validators=[
+            DataRequired(),
+            Length(max=128),
+            Regexp(
+                r"^[a-z0-9-]+$",
+                message="Slug may only contain lowercase letters, numbers, and hyphens.",
+            ),
+        ],
+    )
+    description = TextAreaField("Description", validators=[DataRequired()])
+    tags = StringField(
+        "Tags",
+        validators=[Optional(), Length(max=256)],
+        description="Comma-separated, e.g. Python, Flask, Bootstrap",
+    )
+    icon = StringField(
+        "Icon class",
+        validators=[Optional(), Length(max=64)],
+        description="Bootstrap Icons class name, e.g. bi-code-square",
+    )
+    url = StringField(
+        "Live URL",
+        validators=[Optional(), URL(message="Enter a valid URL or leave blank.")],
+    )
+    repo_url = StringField(
+        "Repo URL",
+        validators=[Optional(), URL(message="Enter a valid URL or leave blank.")],
+    )
+    order = IntegerField(
+        "Display order",
+        default=0,
+        validators=[Optional()],
+        description="Lower numbers appear first.",
+    )
+    is_visible = BooleanField("Visible on portfolio", default=True)
+    submit = SubmitField("Save Project")
+
+
+class SettingsForm(FlaskForm):
+    display_name = StringField(
+        "Display name",
+        validators=[DataRequired(), Length(max=128)],
+        description="Your name as shown in the hero section.",
+    )
+    bio = TextAreaField(
+        "Bio / tagline",
+        validators=[DataRequired()],
+        description="Short description shown beneath your name on the homepage.",
+    )
+    github_url = StringField(
+        "GitHub URL",
+        validators=[Optional(), URL(message="Enter a valid URL or leave blank.")],
+    )
+    linkedin_url = StringField(
+        "LinkedIn URL",
+        validators=[Optional(), URL(message="Enter a valid URL or leave blank.")],
+    )
+    twitter_url = StringField(
+        "Twitter / X URL",
+        validators=[Optional(), URL(message="Enter a valid URL or leave blank.")],
+    )
+    submit = SubmitField("Save Settings")
