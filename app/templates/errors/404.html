@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}404 Not Found — JonesHQ Portfolio{% endblock %}
+
+{% block content %}
+<div class="container text-center" style="min-height: 60vh; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+  <p class="display-1 fw-bold text-primary mb-0">404</p>
+  <h1 class="h3 fw-bold mb-2">Page not found</h1>
+  <p class="text-muted mb-4">The page you're looking for doesn't exist or has been moved.</p>
+  <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+    <i class="bi bi-arrow-left me-2"></i>Back to Portfolio
+  </a>
+</div>
+{% endblock %}

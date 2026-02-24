@@ -1,0 +1,111 @@
+/* ============================================================
+   JonesHQ Portfolio — Custom Styles
+   Layers on top of Bootstrap 5 with data-bs-theme support.
+   ============================================================ */
+
+/* ── Design tokens ────────────────────────────────────────── */
+:root {
+  --jhq-primary: #4f8ef7;
+  --jhq-transition: all 0.2s ease-in-out;
+  --jhq-radius: 0.75rem;
+  --jhq-card-shadow-hover: 0 8px 32px rgba(79, 142, 247, 0.15);
+}
+
+/* ── Navbar ───────────────────────────────────────────────── */
+.jhq-navbar {
+  border-bottom: 1px solid var(--bs-border-color);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background-color: color-mix(in srgb, var(--bs-body-bg) 85%, transparent) !important;
+}
+
+.jhq-brand {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  text-decoration: none;
+  color: var(--bs-body-color) !important;
+}
+
+.jhq-brand-sub {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--bs-secondary-color);
+  margin-left: 0.35rem;
+  letter-spacing: 0;
+  vertical-align: middle;
+  opacity: 0.8;
+}
+
+/* ── Hero section ─────────────────────────────────────────── */
+.jhq-hero {
+  padding: 5rem 0 4rem;
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+@media (max-width: 767.98px) {
+  .jhq-hero {
+    padding: 3rem 0 2.5rem;
+  }
+}
+
+/* ── Feature cards ────────────────────────────────────────── */
+.jhq-feature-card {
+  background-color: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--jhq-radius);
+  transition: var(--jhq-transition);
+}
+
+.jhq-feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--jhq-card-shadow-hover);
+  border-color: var(--jhq-primary);
+}
+
+/* ── Card icon container ──────────────────────────────────── */
+.jhq-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.5rem;
+  background-color: color-mix(in srgb, var(--jhq-primary) 12%, transparent);
+}
+
+/* ── Badges ───────────────────────────────────────────────── */
+.jhq-badge {
+  font-size: 0.7rem;
+  font-weight: 500;
+  background-color: color-mix(in srgb, var(--jhq-primary) 12%, transparent);
+  color: var(--jhq-primary);
+  border: 1px solid color-mix(in srgb, var(--jhq-primary) 25%, transparent);
+  border-radius: 0.4rem;
+  padding: 0.2em 0.55em;
+}
+
+/* ── Footer ───────────────────────────────────────────────── */
+.jhq-footer {
+  border-top: 1px solid var(--bs-border-color);
+  background-color: var(--bs-body-bg);
+}
+
+/* ── Utilities ────────────────────────────────────────────── */
+.letter-spacing-1 {
+  letter-spacing: 0.08em;
+}
+
+/* ── Light theme overrides ────────────────────────────────── */
+[data-bs-theme="light"] .jhq-navbar {
+  background-color: color-mix(in srgb, #ffffff 90%, transparent) !important;
+}
+
+[data-bs-theme="light"] .jhq-feature-card {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+/* ── Dark theme overrides ─────────────────────────────────── */
+[data-bs-theme="dark"] .jhq-feature-card {
+  background-color: color-mix(in srgb, var(--bs-body-bg) 60%, #1a1d2e);
+}
