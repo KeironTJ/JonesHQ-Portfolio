@@ -1,4 +1,5 @@
 import click
+import mistune
 from flask import Flask
 from flask.cli import with_appcontext
 
@@ -27,6 +28,13 @@ def create_app(config_name: str = "default") -> Flask:
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
     app.register_blueprint(admin_bp)
+
+    # Markdown filter (escape=True prevents XSS from user-supplied HTML)
+    _md = mistune.create_markdown(escape=True, plugins=["strikethrough"])
+
+    @app.template_filter("markdown")
+    def markdown_filter(text: str) -> str:
+        return _md(text or "")
 
     # Error handlers
     register_error_handlers(app)

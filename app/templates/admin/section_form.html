@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Section — Admin{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <div class="d-flex align-items-center mb-4 gap-3">
+    <a href="{{ url_for('admin.project_edit', id=section.project_id) }}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>Back to project
+    </a>
+    <div>
+      <p class="text-primary fw-semibold small text-uppercase mb-0">Admin › Sections</p>
+      <h1 class="h4 fw-bold mb-0">Edit Section</h1>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="jhq-feature-card p-4 p-md-5">
+        <form method="post" novalidate>
+          {{ form.hidden_tag() }}
+
+          <div class="mb-3">
+            {{ form.section_type.label(class="form-label") }}
+            {{ form.section_type(class="form-select" + (" is-invalid" if form.section_type.errors else ""),
+                                 id="section-type") }}
+          </div>
+
+          <div class="mb-3">
+            {{ form.heading.label(class="form-label") }}
+            {{ form.heading(class="form-control" + (" is-invalid" if form.heading.errors else ""),
+                            placeholder="Optional section heading") }}
+            {% for error in form.heading.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+            <div class="form-text">{{ form.heading.description }}</div>
+          </div>
+
+          <div class="mb-3">
+            {{ form.body.label(class="form-label") }}
+            {{ form.body(class="form-control font-monospace" + (" is-invalid" if form.body.errors else ""),
+                         rows=10, id="section-body") }}
+            {% for error in form.body.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+            <div class="form-text" id="body-hint">{{ form.body.description }}</div>
+          </div>
+
+          <div class="mb-4" id="meta-field">
+            {{ form.extra.label(class="form-label") }}
+            {{ form.extra(class="form-control" + (" is-invalid" if form.extra.errors else ""),
+                          placeholder="e.g. python") }}
+            {% for error in form.extra.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+            <div class="form-text">{{ form.extra.description }}</div>
+          </div>
+
+          <div class="d-flex gap-2">
+            {{ form.submit(class="btn btn-primary") }}
+            <a href="{{ url_for('admin.project_edit', id=section.project_id) }}"
+               class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-lg-4 mt-4 mt-lg-0">
+      <div class="jhq-feature-card p-4">
+        <h2 class="h6 fw-bold mb-3">
+          <i class="bi bi-info-circle text-primary me-2"></i>Section type hints
+        </h2>
+        <dl class="small text-muted mb-0">
+          <dt class="fw-semibold">Text</dt>
+          <dd class="mb-2">Body is Markdown. Use **bold**, _italic_, links, etc.</dd>
+          <dt class="fw-semibold">Feature list</dt>
+          <dd class="mb-2">One feature per line in Body — rendered as a bullet list.</dd>
+          <dt class="fw-semibold">Image</dt>
+          <dd class="mb-2">Body = image URL. Language/Caption = caption shown below.</dd>
+          <dt class="fw-semibold">Code</dt>
+          <dd class="mb-0">Body = code. Language/Caption = language for highlighting (e.g. <code>python</code>).</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    var typeEl = document.getElementById('section-type');
+    var metaEl = document.getElementById('meta-field');
+    var hintEl = document.getElementById('body-hint');
+
+    var hints = {
+      text:     'Markdown content — supports **bold**, _italic_, [links](url), etc.',
+      features: 'One feature per line. Blank lines are ignored.',
+      image:    'Full URL of the image to display.',
+      code:     'Paste your code here.'
+    };
+
+    function update() {
+      var t = typeEl.value;
+      hintEl.textContent = hints[t] || '';
+      metaEl.style.display = (t === 'code' || t === 'image') ? '' : 'none';
+    }
+
+    typeEl.addEventListener('change', update);
+    update();
+  })();
+</script>
+{% endblock %}

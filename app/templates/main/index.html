@@ -77,9 +77,13 @@
                 {% endfor %}
               </div>
 
-              <div class="d-flex gap-2 mt-auto">
+              <div class="d-flex gap-2 mt-auto flex-wrap">
+                <a href="{{ url_for('main.project_detail', slug=project.slug) }}"
+                   class="btn btn-sm btn-primary">
+                  <i class="bi bi-layout-text-window me-1"></i>Details
+                </a>
                 {% if project.url and project.url != '#' %}
-                  <a href="{{ project.url }}" class="btn btn-sm btn-primary" target="_blank" rel="noopener">
+                  <a href="{{ project.url }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
                     <i class="bi bi-box-arrow-up-right me-1"></i>Live
                   </a>
                 {% endif %}

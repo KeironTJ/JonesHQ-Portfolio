@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import (
     BooleanField,
     IntegerField,
+    SelectField,
     StringField,
     SubmitField,
     TextAreaField,
@@ -49,6 +50,39 @@ class ProjectForm(FlaskForm):
     )
     is_visible = BooleanField("Visible on portfolio", default=True)
     submit = SubmitField("Save Project")
+
+
+class ProjectSectionForm(FlaskForm):
+    heading = StringField(
+        "Heading",
+        validators=[Optional(), Length(max=128)],
+        description="Optional title shown above this section.",
+    )
+    section_type = SelectField(
+        "Type",
+        choices=[
+            ("text",     "Text / paragraph"),
+            ("features", "Feature list"),
+            ("image",    "Image"),
+            ("code",     "Code snippet"),
+        ],
+    )
+    body = TextAreaField(
+        "Body",
+        validators=[DataRequired()],
+        description=(
+            "Text: Markdown content. "
+            "Feature list: one item per line. "
+            "Image: the full image URL. "
+            "Code: the code to display."
+        ),
+    )
+    extra = StringField(
+        "Language / Caption",
+        validators=[Optional(), Length(max=128)],
+        description="Code: language hint (e.g. python, javascript). Image: caption text.",
+    )
+    submit = SubmitField("Save Section")
 
 
 class SettingsForm(FlaskForm):

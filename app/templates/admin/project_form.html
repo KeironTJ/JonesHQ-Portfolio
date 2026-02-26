@@ -17,11 +17,20 @@
         {{ "Edit: " + project.title if project else "Add Project" }}
       </h1>
     </div>
+    {% if project %}
+      <a href="{{ url_for('main.project_detail', slug=project.slug) }}"
+         class="btn btn-sm btn-outline-primary ms-auto" target="_blank" rel="noopener">
+        <i class="bi bi-eye me-1"></i>Preview
+      </a>
+    {% endif %}
   </div>
 
   <div class="row">
     <div class="col-lg-8">
-      <div class="jhq-feature-card p-4 p-md-5">
+
+      <!-- ── Project details form ─────────────────────────────────────────── -->
+      <div class="jhq-feature-card p-4 p-md-5 mb-4">
+        <h2 class="h6 fw-semibold text-uppercase text-muted mb-4 letter-spacing-1">Project details</h2>
         <form method="post" novalidate>
           {{ form.hidden_tag() }}
 
@@ -38,7 +47,7 @@
             <div class="col-md-6">
               {{ form.slug.label(class="form-label") }}
               <div class="input-group">
-                <span class="input-group-text text-muted">/</span>
+                <span class="input-group-text text-muted">/projects/</span>
                 {{ form.slug(class="form-control font-monospace" + (" is-invalid" if form.slug.errors else ""),
                              id="project-slug", placeholder="e.g. family-hq") }}
                 {% for error in form.slug.errors %}
@@ -53,10 +62,11 @@
           <div class="mb-3">
             {{ form.description.label(class="form-label") }}
             {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""),
-                                rows=4, placeholder="What does this project do?") }}
+                                rows=3, placeholder="Short summary shown on the homepage card.") }}
             {% for error in form.description.errors %}
               <div class="invalid-feedback">{{ error }}</div>
             {% endfor %}
+            <div class="form-text">This appears on the homepage card. Detailed content goes in sections below.</div>
           </div>
 
           <!-- Tags -->
@@ -135,22 +145,184 @@
 
         </form>
       </div>
+
+      <!-- ── Content sections ────────────────────────────────────────────── -->
+      {% if project %}
+        <div class="jhq-feature-card p-4 p-md-5">
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+              <h2 class="h6 fw-semibold text-uppercase text-muted mb-0 letter-spacing-1">Content sections</h2>
+              <p class="small text-muted mt-1 mb-0">
+                Rich content shown on the
+                <a href="{{ url_for('main.project_detail', slug=project.slug) }}" target="_blank">detail page</a>.
+              </p>
+            </div>
+            <button class="btn btn-sm btn-outline-primary" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#add-section-panel">
+              <i class="bi bi-plus-lg me-1"></i>Add section
+            </button>
+          </div>
+
+          <!-- Add section inline form -->
+          <div class="collapse mb-4" id="add-section-panel">
+            <div class="border rounded p-4 bg-body-tertiary">
+              <h3 class="h6 fw-semibold mb-3">New section</h3>
+              <form method="post" action="{{ url_for('admin.section_add', id=project.id) }}" novalidate>
+                {{ section_form.hidden_tag() }}
+
+                <div class="mb-3">
+                  {{ section_form.section_type.label(class="form-label") }}
+                  {{ section_form.section_type(class="form-select", id="new-section-type") }}
+                </div>
+
+                <div class="mb-3">
+                  {{ section_form.heading.label(class="form-label") }}
+                  {{ section_form.heading(class="form-control", placeholder="Optional heading") }}
+                  <div class="form-text">{{ section_form.heading.description }}</div>
+                </div>
+
+                <div class="mb-3">
+                  {{ section_form.body.label(class="form-label") }}
+                  {{ section_form.body(class="form-control font-monospace", rows=6,
+                                       id="new-section-body") }}
+                  <div class="form-text" id="new-body-hint">{{ section_form.body.description }}</div>
+                </div>
+
+                <div class="mb-4" id="new-meta-field">
+                  {{ section_form.extra.label(class="form-label") }}
+                  {{ section_form.extra(class="form-control", placeholder="e.g. python") }}
+                  <div class="form-text">{{ section_form.extra.description }}</div>
+                </div>
+
+                <div class="d-flex gap-2">
+                  {{ section_form.submit(class="btn btn-primary btn-sm") }}
+                  <button type="button" class="btn btn-sm btn-outline-secondary"
+                          data-bs-toggle="collapse" data-bs-target="#add-section-panel">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Existing sections list -->
+          {% if project.sections %}
+            <div class="d-flex flex-column gap-3">
+              {% for section in project.sections %}
+                <div class="border rounded p-3 d-flex align-items-start gap-3">
+
+                  <!-- Type badge + heading -->
+                  <div class="flex-grow-1 min-w-0">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                      {% set type_icons = {
+                          'text': 'bi-text-paragraph',
+                          'features': 'bi-list-check',
+                          'image': 'bi-image',
+                          'code': 'bi-code-slash'
+                      } %}
+                      <i class="bi {{ type_icons.get(section.section_type, 'bi-square') }} text-primary"></i>
+                      <span class="badge bg-secondary-subtle text-secondary-emphasis text-capitalize">
+                        {{ section.section_type }}
+                      </span>
+                      {% if section.heading %}
+                        <span class="fw-semibold small">{{ section.heading }}</span>
+                      {% else %}
+                        <span class="text-muted small fst-italic">No heading</span>
+                      {% endif %}
+                    </div>
+                    <p class="text-muted small mb-0 text-truncate" style="max-width: 480px;">
+                      {{ section.body[:120] }}{% if section.body | length > 120 %}…{% endif %}
+                    </p>
+                  </div>
+
+                  <!-- Actions -->
+                  <div class="d-flex gap-1 flex-shrink-0">
+                    <!-- Move up -->
+                    <form method="post" action="{{ url_for('admin.section_move', sid=section.id) }}">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <input type="hidden" name="direction" value="up">
+                      <button class="btn btn-sm btn-outline-secondary"
+                              title="Move up"
+                              {% if loop.first %}disabled{% endif %}>
+                        <i class="bi bi-chevron-up"></i>
+                      </button>
+                    </form>
+                    <!-- Move down -->
+                    <form method="post" action="{{ url_for('admin.section_move', sid=section.id) }}">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <input type="hidden" name="direction" value="down">
+                      <button class="btn btn-sm btn-outline-secondary"
+                              title="Move down"
+                              {% if loop.last %}disabled{% endif %}>
+                        <i class="bi bi-chevron-down"></i>
+                      </button>
+                    </form>
+                    <!-- Edit -->
+                    <a href="{{ url_for('admin.section_edit', sid=section.id) }}"
+                       class="btn btn-sm btn-outline-primary" title="Edit section">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <!-- Delete -->
+                    <form method="post" action="{{ url_for('admin.section_delete', sid=section.id) }}"
+                          onsubmit="return confirm('Delete this section?')">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button class="btn btn-sm btn-outline-danger" title="Delete section">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </form>
+                  </div>
+
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-center py-4 text-muted">
+              <i class="bi bi-layout-text-window fs-2 d-block mb-2 opacity-25"></i>
+              <p class="small mb-0">No sections yet. Add one above to enrich the detail page.</p>
+            </div>
+          {% endif %}
+
+        </div>
+      {% else %}
+        <div class="jhq-feature-card p-4 text-muted small">
+          <i class="bi bi-info-circle me-2"></i>
+          Save the project first, then you can add rich content sections.
+        </div>
+      {% endif %}
+
     </div>
 
     <!-- Sidebar hint -->
     <div class="col-lg-4 mt-4 mt-lg-0">
-      <div class="jhq-feature-card p-4">
+      <div class="jhq-feature-card p-4 mb-3">
         <h2 class="h6 fw-bold mb-3">
           <i class="bi bi-info-circle text-primary me-2"></i>Tips
         </h2>
         <ul class="text-muted small mb-0 ps-3">
           <li class="mb-2">Slug is auto-filled from the title — edit it manually if needed.</li>
           <li class="mb-2">Tags are comma-separated: <code>Python, Flask</code></li>
-          <li class="mb-2">Leave URLs blank if not applicable.</li>
+          <li class="mb-2">The <strong>description</strong> appears on the homepage card.</li>
+          <li class="mb-2">Add <strong>sections</strong> for the full detail page.</li>
           <li class="mb-2">Lower <strong>display order</strong> = appears first on the page.</li>
           <li>Toggle <strong>Visible</strong> to hide a project without deleting it.</li>
         </ul>
       </div>
+
+      {% if project %}
+        <div class="jhq-feature-card p-4">
+          <h2 class="h6 fw-bold mb-3">
+            <i class="bi bi-layout-text-window text-primary me-2"></i>Section types
+          </h2>
+          <dl class="small text-muted mb-0">
+            <dt><i class="bi bi-text-paragraph me-1"></i>Text</dt>
+            <dd class="mb-2">Markdown body — supports bold, links, headings.</dd>
+            <dt><i class="bi bi-list-check me-1"></i>Feature list</dt>
+            <dd class="mb-2">One item per line → rendered as a styled bullet list.</dd>
+            <dt><i class="bi bi-image me-1"></i>Image</dt>
+            <dd class="mb-2">Body = image URL. Caption in the Language/Caption field.</dd>
+            <dt><i class="bi bi-code-slash me-1"></i>Code</dt>
+            <dd class="mb-0">Paste code, set language for syntax highlighting.</dd>
+          </dl>
+        </div>
+      {% endif %}
     </div>
   </div>
 
@@ -186,6 +358,29 @@
 
     iconEl.addEventListener('input', updatePreview);
     updatePreview();
+
+    // New-section type hints + meta field visibility
+    var newTypeEl  = document.getElementById('new-section-type');
+    var newMetaEl  = document.getElementById('new-meta-field');
+    var newHintEl  = document.getElementById('new-body-hint');
+
+    if (newTypeEl) {
+      var hints = {
+        text:     'Markdown content — supports **bold**, _italic_, [links](url), etc.',
+        features: 'One feature per line. Blank lines are ignored.',
+        image:    'Full URL of the image to display.',
+        code:     'Paste your code here.'
+      };
+
+      function updateNewSection() {
+        var t = newTypeEl.value;
+        if (newHintEl) newHintEl.textContent = hints[t] || '';
+        if (newMetaEl) newMetaEl.style.display = (t === 'code' || t === 'image') ? '' : 'none';
+      }
+
+      newTypeEl.addEventListener('change', updateNewSection);
+      updateNewSection();
+    }
   })();
 </script>
 {% endblock %}

@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.title }} — JonesHQ Portfolio{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <!-- Back + admin preview banner -->
+  <div class="d-flex align-items-center mb-4 gap-3">
+    <a href="{{ url_for('main.index') }}#projects" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>All projects
+    </a>
+    {% if current_user.is_authenticated and not project.is_visible %}
+      <div class="alert alert-warning d-flex align-items-center gap-2 py-2 px-3 mb-0 flex-grow-1">
+        <i class="bi bi-eye-slash-fill"></i>
+        <span class="small">This project is <strong>hidden</strong> — only you can see this page.</span>
+        <a href="{{ url_for('admin.project_edit', id=project.id) }}"
+           class="btn btn-sm btn-warning ms-auto">Edit</a>
+      </div>
+    {% endif %}
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('admin.project_edit', id=project.id) }}"
+         class="btn btn-sm btn-outline-primary {% if not project.is_visible %}ms-0{% else %}ms-auto{% endif %}">
+        <i class="bi bi-pencil me-1"></i>Edit
+      </a>
+    {% endif %}
+  </div>
+
+  <!-- Project header -->
+  <div class="jhq-feature-card p-4 p-md-5 mb-5">
+    <div class="row align-items-center g-4">
+      <div class="col-auto">
+        <div class="jhq-card-icon" style="width: 64px; height: 64px;">
+          <i class="bi {{ project.icon | default('bi-code-square') }} fs-2 text-primary"></i>
+        </div>
+      </div>
+      <div class="col">
+        <h1 class="fw-bold mb-2">{{ project.title }}</h1>
+        <p class="lead text-muted mb-3">{{ project.description }}</p>
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          {% for tag in project.tags_list %}
+            <span class="badge jhq-badge">{{ tag }}</span>
+          {% endfor %}
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          {% if project.url and project.url != '#' %}
+            <a href="{{ project.url }}" class="btn btn-primary" target="_blank" rel="noopener">
+              <i class="bi bi-box-arrow-up-right me-1"></i>Live site
+            </a>
+          {% endif %}
+          {% if project.repo_url and project.repo_url != '#' %}
+            <a href="{{ project.repo_url }}" class="btn btn-outline-secondary" target="_blank" rel="noopener">
+              <i class="bi bi-github me-1"></i>View code
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content sections -->
+  {% if project.sections %}
+    <div class="d-flex flex-column gap-4">
+      {% for section in project.sections %}
+
+        {# ── Text section ──────────────────────────────────────────────────── #}
+        {% if section.section_type == 'text' %}
+          <section class="jhq-feature-card p-4 p-md-5">
+            {% if section.heading %}
+              <h2 class="h4 fw-bold mb-3">{{ section.heading }}</h2>
+            {% endif %}
+            <div class="prose text-muted">
+              {{ section.body | markdown | safe }}
+            </div>
+          </section>
+
+        {# ── Feature list section ──────────────────────────────────────────── #}
+        {% elif section.section_type == 'features' %}
+          <section class="jhq-feature-card p-4 p-md-5">
+            {% if section.heading %}
+              <h2 class="h4 fw-bold mb-3">{{ section.heading }}</h2>
+            {% endif %}
+            <ul class="list-unstyled mb-0">
+              {% for line in section.body.splitlines() %}
+                {% set item = line.strip() %}
+                {% if item %}
+                  <li class="d-flex align-items-start gap-2 mb-2">
+                    <i class="bi bi-check-circle-fill text-primary mt-1 flex-shrink-0"></i>
+                    <span>{{ item }}</span>
+                  </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </section>
+
+        {# ── Image section ─────────────────────────────────────────────────── #}
+        {% elif section.section_type == 'image' %}
+          <section class="jhq-feature-card p-4 p-md-5">
+            {% if section.heading %}
+              <h2 class="h4 fw-bold mb-3">{{ section.heading }}</h2>
+            {% endif %}
+            <figure class="mb-0 text-center">
+              <img src="{{ section.body | e }}"
+                   alt="{{ section.meta or section.heading or project.title }}"
+                   class="img-fluid rounded shadow-sm"
+                   style="max-height: 520px; object-fit: contain;"
+                   onerror="this.closest('figure').innerHTML='<p class=\'text-muted small\'><i class=\'bi bi-image me-1\'></i>Image could not be loaded.</p>'">
+              {% if section.meta %}
+                <figcaption class="text-muted small mt-2">{{ section.meta }}</figcaption>
+              {% endif %}
+            </figure>
+          </section>
+
+        {# ── Code section ──────────────────────────────────────────────────── #}
+        {% elif section.section_type == 'code' %}
+          <section class="jhq-feature-card p-4 p-md-5">
+            {% if section.heading %}
+              <h2 class="h4 fw-bold mb-3">{{ section.heading }}</h2>
+            {% endif %}
+            {% if section.meta %}
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge bg-secondary-subtle text-secondary-emphasis font-monospace">
+                  {{ section.meta }}
+                </span>
+              </div>
+            {% endif %}
+            <pre class="rounded p-3 mb-0" style="overflow-x: auto;"><code class="language-{{ section.meta or 'plaintext' }}">{{ section.body | e }}</code></pre>
+          </section>
+
+        {% endif %}
+      {% endfor %}
+    </div>
+
+  {% else %}
+    <!-- No sections yet — show a simple message (admin only, since public can't reach here without sections via card) -->
+    {% if current_user.is_authenticated %}
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-layout-text-window fs-1 d-block mb-3 opacity-25"></i>
+        <p>No content sections yet.</p>
+        <a href="{{ url_for('admin.project_edit', id=project.id) }}" class="btn btn-outline-primary">
+          <i class="bi bi-plus-lg me-1"></i>Add sections
+        </a>
+      </div>
+    {% endif %}
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- highlight.js for code syntax highlighting -->
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github-dark-dimmed.min.css"
+      media="(prefers-color-scheme: dark)">
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github.min.css"
+      media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/highlight.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Respect the page's current Bootstrap theme
+    var theme = document.documentElement.getAttribute('data-bs-theme');
+    if (theme === 'dark') {
+      document.querySelectorAll('link[media*="dark"]').forEach(function (el) {
+        el.removeAttribute('media');
+      });
+      document.querySelectorAll('link[media*="light"]').forEach(function (el) {
+        el.media = 'not all';
+      });
+    }
+    hljs.highlightAll();
+  });
+</script>
+{% endblock %}

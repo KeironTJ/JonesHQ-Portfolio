@@ -21,6 +21,13 @@ class Project(db.Model):
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    sections = db.relationship(
+        "ProjectSection",
+        back_populates="project",
+        order_by="ProjectSection.order",
+        cascade="all, delete-orphan",
+    )
+
     @property
     def tags_list(self) -> list[str]:
         """Return tags as a list, splitting on commas."""
