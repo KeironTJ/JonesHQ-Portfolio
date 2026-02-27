@@ -69,7 +69,7 @@
             <form method="post" action="{{ url_for('admin.section_move', sid=section.id) }}">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <input type="hidden" name="direction" value="up">
-              <input type="hidden" name="next" value="{{ request.url }}">
+              <input type="hidden" name="next" value="{{ request.path }}">
               <button class="btn btn-sm btn-outline-secondary" title="Move up"
                       {% if loop.first %}disabled{% endif %}>
                 <i class="bi bi-chevron-up"></i>
@@ -78,20 +78,20 @@
             <form method="post" action="{{ url_for('admin.section_move', sid=section.id) }}">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <input type="hidden" name="direction" value="down">
-              <input type="hidden" name="next" value="{{ request.url }}">
+              <input type="hidden" name="next" value="{{ request.path }}">
               <button class="btn btn-sm btn-outline-secondary" title="Move down"
                       {% if loop.last %}disabled{% endif %}>
                 <i class="bi bi-chevron-down"></i>
               </button>
             </form>
-            <a href="{{ url_for('admin.section_edit', sid=section.id, next=request.url) }}"
+            <a href="{{ url_for('admin.section_edit', sid=section.id, next=request.path) }}"
                class="btn btn-sm btn-outline-primary" title="Edit section">
               <i class="bi bi-pencil"></i>
             </a>
             <form method="post" action="{{ url_for('admin.section_delete', sid=section.id) }}"
                   onsubmit="return confirm('Delete this section?')">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <input type="hidden" name="next" value="{{ request.url }}">
+              <input type="hidden" name="next" value="{{ request.path }}">
               <button class="btn btn-sm btn-outline-danger" title="Delete section">
                 <i class="bi bi-trash"></i>
               </button>
@@ -188,7 +188,7 @@
           <h3 class="h6 fw-semibold mb-3">New section</h3>
           <form method="post" action="{{ url_for('admin.section_add', id=project.id) }}" novalidate>
             {{ section_form.hidden_tag() }}
-            <input type="hidden" name="next" value="{{ request.url }}">
+            <input type="hidden" name="next" value="{{ request.path }}">
             <div class="mb-3">
               {{ section_form.section_type.label(class="form-label") }}
               {{ section_form.section_type(class="form-select", id="detail-section-type") }}
