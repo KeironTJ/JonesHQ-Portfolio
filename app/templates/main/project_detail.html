@@ -63,9 +63,11 @@
     <div class="d-flex flex-column gap-4">
       {% for section in project.sections %}
 
+        <div>
+
         {# ── Admin toolbar (per section) ───────────────────────────────────── #}
         {% if current_user.is_authenticated %}
-          <div class="d-flex justify-content-end gap-1 mb-n3" style="position:relative;z-index:1;">
+          <div class="d-flex justify-content-end gap-1 mb-2">
             <form method="post" action="{{ url_for('admin.section_move', sid=section.id) }}">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <input type="hidden" name="direction" value="up">
@@ -164,6 +166,8 @@
           </section>
 
         {% endif %}
+
+        </div>
       {% endfor %}
     </div>
 
