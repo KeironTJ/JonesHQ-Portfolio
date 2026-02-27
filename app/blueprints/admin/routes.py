@@ -222,6 +222,7 @@ def settings():
 
     if form.validate_on_submit():
         site_settings.display_name = form.display_name.data
+        site_settings.tagline = form.tagline.data
         site_settings.bio = form.bio.data
         site_settings.github_url = form.github_url.data or None
         site_settings.linkedin_url = form.linkedin_url.data or None

@@ -102,10 +102,15 @@ class SettingsForm(FlaskForm):
         validators=[DataRequired(), Length(max=128)],
         description="Your name as shown in the hero section.",
     )
+    tagline = StringField(
+        "Tagline",
+        validators=[DataRequired(), Length(max=256)],
+        description="One sentence shown beneath your name in the hero. Keep it punchy.",
+    )
     bio = TextAreaField(
-        "Bio / tagline",
+        "About / Bio",
         validators=[DataRequired()],
-        description="Short description shown beneath your name on the homepage.",
+        description="Full bio shown in the About section. Separate paragraphs with a blank line.",
     )
     github_url = StringField(
         "GitHub URL",

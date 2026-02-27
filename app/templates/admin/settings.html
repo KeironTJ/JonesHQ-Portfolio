@@ -36,11 +36,22 @@
             <div class="form-text">{{ form.display_name.description }}</div>
           </div>
 
+          <div class="mb-3">
+            {{ form.tagline.label(class="form-label") }}
+            {{ form.tagline(class="form-control" + (" is-invalid" if form.tagline.errors else ""),
+                            id="input-tagline",
+                            placeholder="Production Planning Manager, developer, and lifelong problem solver.") }}
+            {% for error in form.tagline.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+            <div class="form-text">{{ form.tagline.description }}</div>
+          </div>
+
           <div class="mb-4">
             {{ form.bio.label(class="form-label") }}
             {{ form.bio(class="form-control" + (" is-invalid" if form.bio.errors else ""),
-                        rows=8,
-                        placeholder="A collection of personal projects...") }}
+                        rows=10,
+                        placeholder="Write your full bio here. Leave a blank line between paragraphs.") }}
             {% for error in form.bio.errors %}
               <div class="invalid-feedback">{{ error }}</div>
             {% endfor %}
@@ -108,7 +119,7 @@
             Hi, I'm
           </p>
           <p class="fw-bold mb-1 fs-5" id="preview-name">{{ settings.display_name }}</p>
-          <div class="text-muted mb-2" style="font-size:0.8rem;" id="preview-bio">{{ settings.bio | markdown | safe }}</div>
+          <p class="text-muted mb-2" style="font-size:0.8rem;" id="preview-tagline">{{ settings.tagline }}</p>
           <div class="d-flex gap-1 flex-wrap">
             {% if settings.github_url %}
               <span class="badge bg-secondary">
@@ -142,19 +153,19 @@
 {% block scripts %}
 <script>
   (function () {
-    var nameInput = document.querySelector('[name="display_name"]');
-    var bioInput  = document.querySelector('[name="bio"]');
-    var prevName  = document.getElementById('preview-name');
-    var prevBio   = document.getElementById('preview-bio');
+    var nameInput    = document.querySelector('[name="display_name"]');
+    var taglineInput = document.getElementById('input-tagline');
+    var prevName     = document.getElementById('preview-name');
+    var prevTagline  = document.getElementById('preview-tagline');
 
     if (nameInput && prevName) {
       nameInput.addEventListener('input', function () {
         prevName.textContent = nameInput.value || 'Your Name';
       });
     }
-    if (bioInput && prevBio) {
-      bioInput.addEventListener('input', function () {
-        prevBio.textContent = bioInput.value || 'Your bio...';
+    if (taglineInput && prevTagline) {
+      taglineInput.addEventListener('input', function () {
+        prevTagline.textContent = taglineInput.value || 'Your tagline...';
       });
     }
   })();

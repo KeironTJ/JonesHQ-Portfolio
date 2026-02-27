@@ -10,6 +10,11 @@ class SiteSettings(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     display_name = db.Column(db.String(128), nullable=False, default="Keiron Jones")
+    tagline = db.Column(
+        db.String(256),
+        nullable=False,
+        default="Production Planning Manager, developer, and lifelong problem solver.",
+    )
     bio = db.Column(
         db.Text,
         nullable=False,
