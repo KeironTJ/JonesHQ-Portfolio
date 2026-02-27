@@ -1,7 +1,10 @@
+import os
+import uuid
 from functools import wraps
 
-from flask import abort, flash, redirect, render_template, url_for
+from flask import abort, current_app, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
+from werkzeug.utils import secure_filename
 
 from app.extensions import db
 from app.models.project import Project
@@ -10,6 +13,21 @@ from app.models.settings import SiteSettings
 
 from . import admin_bp
 from .forms import ProjectForm, ProjectSectionForm, SettingsForm
+
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp", "svg"}
+
+
+def _save_upload(file) -> str | None:
+    """Save an uploaded image file; return the static URL path or None."""
+    if not file or not file.filename:
+        return None
+    ext = file.filename.rsplit(".", 1)[-1].lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        return None
+    filename = f"{uuid.uuid4().hex}.{ext}"
+    dest = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
+    file.save(dest)
+    return f"/static/uploads/{filename}"
 
 
 def admin_required(f):
@@ -136,12 +154,17 @@ def section_add(id):
     form = ProjectSectionForm()
     next_url = request.form.get("next") or url_for("admin.project_edit", id=id)
     if form.validate_on_submit():
-        # New section gets order = current max + 1
+        body = form.body.data
+        # For image sections, a file upload overrides the URL body field
+        if form.section_type.data == "image":
+            uploaded = _save_upload(request.files.get("image_file"))
+            if uploaded:
+                body = uploaded
         max_order = db.session.query(db.func.max(ProjectSection.order)).filter_by(project_id=id).scalar() or -1
         section = ProjectSection(
             project_id=project.id,
             heading=form.heading.data or None,
-            body=form.body.data,
+            body=body,
             section_type=form.section_type.data,
             meta=form.extra.data or None,
             order=max_order + 1,
@@ -168,8 +191,13 @@ def section_edit(sid):
     if not form.is_submitted():
         form.extra.data = section.meta
     if form.validate_on_submit():
+        body = form.body.data
+        if form.section_type.data == "image":
+            uploaded = _save_upload(request.files.get("image_file"))
+            if uploaded:
+                body = uploaded
         section.heading = form.heading.data or None
-        section.body = form.body.data
+        section.body = body
         section.section_type = form.section_type.data
         section.meta = form.extra.data or None
         db.session.commit()

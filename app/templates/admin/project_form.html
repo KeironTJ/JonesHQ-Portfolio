@@ -174,7 +174,8 @@
           <div class="collapse mb-4" id="add-section-panel">
             <div class="border rounded p-4 bg-body-tertiary">
               <h3 class="h6 fw-semibold mb-3">New section</h3>
-              <form method="post" action="{{ url_for('admin.section_add', id=project.id) }}" novalidate>
+              <form method="post" action="{{ url_for('admin.section_add', id=project.id) }}"
+                    enctype="multipart/form-data" novalidate>
                 {{ section_form.hidden_tag() }}
 
                 <div class="mb-3">
@@ -186,6 +187,12 @@
                   {{ section_form.heading.label(class="form-label") }}
                   {{ section_form.heading(class="form-control", placeholder="Optional heading") }}
                   <div class="form-text">{{ section_form.heading.description }}</div>
+                </div>
+
+                <div class="mb-3" id="new-upload-field" style="display:none;">
+                  <label class="form-label">Upload image</label>
+                  <input type="file" name="image_file" class="form-control" accept="image/*">
+                  <div class="form-text">Upload a file, or paste a URL in the field below.</div>
                 </div>
 
                 <div class="mb-3">
@@ -366,23 +373,25 @@
     iconEl.addEventListener('input', updatePreview);
     updatePreview();
 
-    // New-section type hints + meta field visibility
-    var newTypeEl  = document.getElementById('new-section-type');
-    var newMetaEl  = document.getElementById('new-meta-field');
-    var newHintEl  = document.getElementById('new-body-hint');
+    // New-section type hints + meta/upload field visibility
+    var newTypeEl   = document.getElementById('new-section-type');
+    var newMetaEl   = document.getElementById('new-meta-field');
+    var newHintEl   = document.getElementById('new-body-hint');
+    var newUploadEl = document.getElementById('new-upload-field');
 
     if (newTypeEl) {
       var hints = {
         text:     'Markdown content — supports **bold**, _italic_, [links](url), etc.',
         features: 'One feature per line. Blank lines are ignored.',
-        image:    'Full URL of the image to display.',
+        image:    'Or paste an image URL below instead of uploading.',
         code:     'Paste your code here.'
       };
 
       function updateNewSection() {
         var t = newTypeEl.value;
-        if (newHintEl) newHintEl.textContent = hints[t] || '';
-        if (newMetaEl) newMetaEl.style.display = (t === 'code' || t === 'image') ? '' : 'none';
+        if (newHintEl)   newHintEl.textContent = hints[t] || '';
+        if (newMetaEl)   newMetaEl.style.display   = (t === 'code' || t === 'image') ? '' : 'none';
+        if (newUploadEl) newUploadEl.style.display  = (t === 'image') ? '' : 'none';
       }
 
       newTypeEl.addEventListener('change', updateNewSection);

@@ -186,7 +186,8 @@
       <div class="collapse mt-3" id="detail-add-section">
         <div class="jhq-feature-card p-4">
           <h3 class="h6 fw-semibold mb-3">New section</h3>
-          <form method="post" action="{{ url_for('admin.section_add', id=project.id) }}" novalidate>
+          <form method="post" action="{{ url_for('admin.section_add', id=project.id) }}"
+                enctype="multipart/form-data" novalidate>
             {{ section_form.hidden_tag() }}
             <input type="hidden" name="next" value="{{ request.path }}">
             <div class="mb-3">
@@ -196,6 +197,11 @@
             <div class="mb-3">
               {{ section_form.heading.label(class="form-label") }}
               {{ section_form.heading(class="form-control", placeholder="Optional heading") }}
+            </div>
+            <div class="mb-3" id="detail-upload-field" style="display:none;">
+              <label class="form-label">Upload image</label>
+              <input type="file" name="image_file" class="form-control" accept="image/*">
+              <div class="form-text">Upload a file, or paste a URL below instead.</div>
             </div>
             <div class="mb-3">
               {{ section_form.body.label(class="form-label") }}
@@ -234,20 +240,22 @@
 <script>
   // Section type hints for the inline Add section panel
   (function () {
-    var typeEl = document.getElementById('detail-section-type');
-    var metaEl = document.getElementById('detail-meta-field');
-    var hintEl = document.getElementById('detail-body-hint');
+    var typeEl     = document.getElementById('detail-section-type');
+    var metaEl     = document.getElementById('detail-meta-field');
+    var hintEl     = document.getElementById('detail-body-hint');
+    var uploadEl   = document.getElementById('detail-upload-field');
     if (!typeEl) return;
     var hints = {
       text:     'Markdown content — supports **bold**, _italic_, [links](url), etc.',
       features: 'One feature per line. Blank lines are ignored.',
-      image:    'Full URL of the image to display.',
+      image:    'Or paste an image URL below instead of uploading.',
       code:     'Paste your code here.'
     };
     function update() {
       var t = typeEl.value;
-      if (hintEl) hintEl.textContent = hints[t] || '';
-      if (metaEl) metaEl.style.display = (t === 'code' || t === 'image') ? '' : 'none';
+      if (hintEl)   hintEl.textContent = hints[t] || '';
+      if (metaEl)   metaEl.style.display   = (t === 'code' || t === 'image') ? '' : 'none';
+      if (uploadEl) uploadEl.style.display  = (t === 'image') ? '' : 'none';
     }
     typeEl.addEventListener('change', update);
     update();

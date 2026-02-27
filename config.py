@@ -9,6 +9,8 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SESSION_COOKIE_HTTPONLY = True
     REMEMBER_COOKIE_HTTPONLY = True
+    UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "app", "static", "uploads")
+    MAX_CONTENT_LENGTH = 8 * 1024 * 1024  # 8 MB file upload limit
 
     @staticmethod
     def init_app(app):
