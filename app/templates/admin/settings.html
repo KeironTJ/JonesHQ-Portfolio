@@ -39,7 +39,7 @@
           <div class="mb-4">
             {{ form.bio.label(class="form-label") }}
             {{ form.bio(class="form-control" + (" is-invalid" if form.bio.errors else ""),
-                        rows=3,
+                        rows=8,
                         placeholder="A collection of personal projects...") }}
             {% for error in form.bio.errors %}
               <div class="invalid-feedback">{{ error }}</div>
@@ -108,7 +108,7 @@
             Hi, I'm
           </p>
           <p class="fw-bold mb-1 fs-5" id="preview-name">{{ settings.display_name }}</p>
-          <p class="text-muted mb-2" style="font-size:0.8rem;" id="preview-bio">{{ settings.bio }}</p>
+          <div class="text-muted mb-2" style="font-size:0.8rem;" id="preview-bio">{{ settings.bio | markdown | safe }}</div>
           <div class="d-flex gap-1 flex-wrap">
             {% if settings.github_url %}
               <span class="badge bg-secondary">

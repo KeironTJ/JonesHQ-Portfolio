@@ -13,9 +13,9 @@
           Hi, I'm
         </p>
         <h1 class="display-4 fw-bold mb-3">{{ settings.display_name }}</h1>
-        <p class="lead text-muted mb-4" style="max-width: 540px;">
-          {{ settings.bio }}
-        </p>
+        <div class="lead text-muted mb-4" style="max-width: 540px;">
+          {{ settings.bio | markdown | safe }}
+        </div>
         <a href="#projects" class="btn btn-primary btn-lg me-2">
           <i class="bi bi-grid-3x3-gap me-2"></i>View Projects
         </a>
