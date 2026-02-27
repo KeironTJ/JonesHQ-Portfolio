@@ -127,15 +127,15 @@
 
           {% elif section.section_type == 'image' %}
             <figure class="mb-0 text-center">
-              <img src="{{ section.body | e }}"
-                   alt="{{ section.meta or section.heading or project.title }}"
+              <img src="{{ section.meta | e }}"
+                   alt="{{ section.heading or project.title }}"
                    class="img-fluid rounded shadow-sm"
                    style="max-height: 520px; object-fit: contain;"
                    onerror="this.closest('figure').innerHTML='<p class=\'text-muted small\'><i class=\'bi bi-image me-1\'></i>Image could not be loaded.</p>'">
-              {% if section.meta %}
-                <figcaption class="text-muted small mt-2">{{ section.meta }}</figcaption>
-              {% endif %}
             </figure>
+            {% if section.body %}
+              <div class="prose text-muted mt-3">{{ section.body | markdown | safe }}</div>
+            {% endif %}
 
           {% elif section.section_type == 'code' %}
             {% if section.meta %}
@@ -188,7 +188,7 @@
             <div class="mb-3" id="detail-upload-field" style="display:none;">
               <label class="form-label">Upload image</label>
               <input type="file" name="image_file" class="form-control" accept="image/*">
-              <div class="form-text">Upload a file, or paste a URL below instead.</div>
+              <div class="form-text">Upload a file, or paste a URL in the Image URL field below.</div>
             </div>
             <div class="mb-3">
               {{ section_form.body.label(class="form-label") }}
@@ -235,7 +235,7 @@
     var hints = {
       text:     'Markdown content — supports **bold**, _italic_, [links](url), etc.',
       features: 'One feature per line. Blank lines are ignored.',
-      image:    'Or paste an image URL below instead of uploading.',
+      image:    'Optional text shown below the image. Supports Markdown.',
       code:     'Paste your code here.'
     };
     function update() {

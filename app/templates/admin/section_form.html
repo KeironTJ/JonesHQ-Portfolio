@@ -43,13 +43,13 @@
           <div class="mb-3" id="upload-field" style="display:none;">
             <label class="form-label">Upload image</label>
             <input type="file" name="image_file" class="form-control" accept="image/*">
-            {% if form.body.data and form.body.data.startswith('/static/uploads/') %}
+            {% if form.extra.data and form.extra.data.startswith('/static/uploads/') %}
               <div class="mt-2">
-                <img src="{{ form.body.data }}" class="img-thumbnail" style="max-height:80px;">
+                <img src="{{ form.extra.data }}" class="img-thumbnail" style="max-height:80px;">
                 <span class="text-muted small ms-2">Current image</span>
               </div>
             {% endif %}
-            <div class="form-text">Upload a new file, or paste a URL in the field below.</div>
+            <div class="form-text">Upload a new file, or paste a URL in the Image URL field below.</div>
           </div>
 
           <div class="mb-3">
@@ -113,7 +113,7 @@
     var hints = {
       text:     'Markdown content — supports **bold**, _italic_, [links](url), etc.',
       features: 'One feature per line. Blank lines are ignored.',
-      image:    'Full URL of the image to display.',
+      image:    'Optional text shown below the image. Supports Markdown.',
       code:     'Paste your code here.'
     };
 

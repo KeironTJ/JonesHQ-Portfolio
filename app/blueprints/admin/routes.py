@@ -155,11 +155,11 @@ def section_add(id):
     next_url = request.form.get("next") or url_for("admin.project_edit", id=id)
     if form.validate_on_submit():
         body = form.body.data
-        # For image sections, a file upload overrides the URL body field
+        meta = form.extra.data or None
+        # For image sections: meta = image URL/path, body = optional text
         if form.section_type.data == "image":
             uploaded = _save_upload(request.files.get("image_file"))
-            if uploaded:
-                body = uploaded
+            meta = uploaded or form.extra.data or None
         _max = db.session.query(db.func.max(ProjectSection.order)).filter_by(project_id=id).scalar()
         max_order = _max if _max is not None else -1
         section = ProjectSection(
@@ -167,7 +167,7 @@ def section_add(id):
             heading=form.heading.data or None,
             body=body,
             section_type=form.section_type.data,
-            meta=form.extra.data or None,
+            meta=meta,
             order=max_order + 1,
         )
         db.session.add(section)
@@ -193,14 +193,15 @@ def section_edit(sid):
         form.extra.data = section.meta
     if form.validate_on_submit():
         body = form.body.data
+        meta = form.extra.data or None
+        # For image sections: meta = image URL/path, body = optional text
         if form.section_type.data == "image":
             uploaded = _save_upload(request.files.get("image_file"))
-            if uploaded:
-                body = uploaded
+            meta = uploaded or form.extra.data or None
         section.heading = form.heading.data or None
         section.body = body
         section.section_type = form.section_type.data
-        section.meta = form.extra.data or None
+        section.meta = meta
         db.session.commit()
         flash("Section updated.", "success")
         return redirect(next_url)
