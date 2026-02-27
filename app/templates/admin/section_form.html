@@ -6,7 +6,7 @@
 <div class="container py-5">
 
   <div class="d-flex align-items-center mb-4 gap-3">
-    <a href="{{ url_for('admin.project_edit', id=section.project_id) }}" class="btn btn-sm btn-outline-secondary">
+    <a href="{{ next_url or url_for('admin.project_edit', id=section.project_id) }}" class="btn btn-sm btn-outline-secondary">
       <i class="bi bi-arrow-left me-1"></i>Back to project
     </a>
     <div>
@@ -20,6 +20,9 @@
       <div class="jhq-feature-card p-4 p-md-5">
         <form method="post" novalidate>
           {{ form.hidden_tag() }}
+          {% if next_url %}
+            <input type="hidden" name="next" value="{{ next_url }}">
+          {% endif %}
 
           <div class="mb-3">
             {{ form.section_type.label(class="form-label") }}
@@ -59,7 +62,7 @@
 
           <div class="d-flex gap-2">
             {{ form.submit(class="btn btn-primary") }}
-            <a href="{{ url_for('admin.project_edit', id=section.project_id) }}"
+            <a href="{{ next_url or url_for('admin.project_edit', id=section.project_id) }}"
                class="btn btn-outline-secondary">Cancel</a>
           </div>
         </form>

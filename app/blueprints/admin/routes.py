@@ -131,8 +131,10 @@ def project_toggle(id):
 @login_required
 @admin_required
 def section_add(id):
+    from flask import request
     project = db.get_or_404(Project, id)
     form = ProjectSectionForm()
+    next_url = request.form.get("next") or url_for("admin.project_edit", id=id)
     if form.validate_on_submit():
         # New section gets order = current max + 1
         max_order = db.session.query(db.func.max(ProjectSection.order)).filter_by(project_id=id).scalar() or -1
@@ -151,15 +153,17 @@ def section_add(id):
         for field_errors in form.errors.values():
             for error in field_errors:
                 flash(error, "danger")
-    return redirect(url_for("admin.project_edit", id=id))
+    return redirect(next_url)
 
 
 @admin_bp.route("/sections/<int:sid>/edit", methods=["GET", "POST"])
 @login_required
 @admin_required
 def section_edit(sid):
+    from flask import request
     section = db.get_or_404(ProjectSection, sid)
     form = ProjectSectionForm(obj=section)
+    next_url = request.args.get("next") or request.form.get("next") or url_for("admin.project_edit", id=section.project_id)
     # `meta` DB column → `extra` form field (name differs to avoid WTForms reserved word)
     if not form.is_submitted():
         form.extra.data = section.meta
@@ -170,20 +174,22 @@ def section_edit(sid):
         section.meta = form.extra.data or None
         db.session.commit()
         flash("Section updated.", "success")
-        return redirect(url_for("admin.project_edit", id=section.project_id))
-    return render_template("admin/section_form.html", form=form, section=section)
+        return redirect(next_url)
+    return render_template("admin/section_form.html", form=form, section=section, next_url=next_url)
 
 
 @admin_bp.route("/sections/<int:sid>/delete", methods=["POST"])
 @login_required
 @admin_required
 def section_delete(sid):
+    from flask import request
     section = db.get_or_404(ProjectSection, sid)
     project_id = section.project_id
+    next_url = request.form.get("next") or url_for("admin.project_edit", id=project_id)
     db.session.delete(section)
     db.session.commit()
     flash("Section deleted.", "info")
-    return redirect(url_for("admin.project_edit", id=project_id))
+    return redirect(next_url)
 
 
 @admin_bp.route("/sections/<int:sid>/move", methods=["POST"])
@@ -192,6 +198,7 @@ def section_delete(sid):
 def section_move(sid):
     from flask import request
     section = db.get_or_404(ProjectSection, sid)
+    next_url = request.form.get("next") or url_for("admin.project_edit", id=section.project_id)
     direction = request.form.get("direction")  # "up" or "down"
     siblings = (
         ProjectSection.query
@@ -208,7 +215,7 @@ def section_move(sid):
         # Swap order values
         siblings[idx].order, siblings[swap_idx].order = siblings[swap_idx].order, siblings[idx].order
         db.session.commit()
-    return redirect(url_for("admin.project_edit", id=section.project_id))
+    return redirect(next_url)
 
 
 # ── Site settings ─────────────────────────────────────────────────────────────

@@ -63,6 +63,42 @@
     <div class="d-flex flex-column gap-4">
       {% for section in project.sections %}
 
+        {# ── Admin toolbar (per section) ───────────────────────────────────── #}
+        {% if current_user.is_authenticated %}
+          <div class="d-flex justify-content-end gap-1 mb-n3" style="position:relative;z-index:1;">
+            <form method="post" action="{{ url_for('admin.section_move', sid=section.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="direction" value="up">
+              <input type="hidden" name="next" value="{{ request.url }}">
+              <button class="btn btn-sm btn-outline-secondary" title="Move up"
+                      {% if loop.first %}disabled{% endif %}>
+                <i class="bi bi-chevron-up"></i>
+              </button>
+            </form>
+            <form method="post" action="{{ url_for('admin.section_move', sid=section.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="direction" value="down">
+              <input type="hidden" name="next" value="{{ request.url }}">
+              <button class="btn btn-sm btn-outline-secondary" title="Move down"
+                      {% if loop.last %}disabled{% endif %}>
+                <i class="bi bi-chevron-down"></i>
+              </button>
+            </form>
+            <a href="{{ url_for('admin.section_edit', sid=section.id, next=request.url) }}"
+               class="btn btn-sm btn-outline-primary" title="Edit section">
+              <i class="bi bi-pencil"></i>
+            </a>
+            <form method="post" action="{{ url_for('admin.section_delete', sid=section.id) }}"
+                  onsubmit="return confirm('Delete this section?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="next" value="{{ request.url }}">
+              <button class="btn btn-sm btn-outline-danger" title="Delete section">
+                <i class="bi bi-trash"></i>
+              </button>
+            </form>
+          </div>
+        {% endif %}
+
         {# ── Text section ──────────────────────────────────────────────────── #}
         {% if section.section_type == 'text' %}
           <section class="jhq-feature-card p-4 p-md-5">
@@ -132,16 +168,55 @@
     </div>
 
   {% else %}
-    <!-- No sections yet — show a simple message (admin only, since public can't reach here without sections via card) -->
     {% if current_user.is_authenticated %}
       <div class="text-center py-5 text-muted">
         <i class="bi bi-layout-text-window fs-1 d-block mb-3 opacity-25"></i>
-        <p>No content sections yet.</p>
-        <a href="{{ url_for('admin.project_edit', id=project.id) }}" class="btn btn-outline-primary">
-          <i class="bi bi-plus-lg me-1"></i>Add sections
-        </a>
+        <p>No content sections yet. Add one below.</p>
       </div>
     {% endif %}
+  {% endif %}
+
+  {# ── Add section panel (admin only) ───────────────────────────────────────── #}
+  {% if current_user.is_authenticated and section_form %}
+    <div class="mt-4">
+      <button class="btn btn-outline-primary w-100" type="button"
+              data-bs-toggle="collapse" data-bs-target="#detail-add-section">
+        <i class="bi bi-plus-lg me-1"></i>Add section
+      </button>
+      <div class="collapse mt-3" id="detail-add-section">
+        <div class="jhq-feature-card p-4">
+          <h3 class="h6 fw-semibold mb-3">New section</h3>
+          <form method="post" action="{{ url_for('admin.section_add', id=project.id) }}" novalidate>
+            {{ section_form.hidden_tag() }}
+            <input type="hidden" name="next" value="{{ request.url }}">
+            <div class="mb-3">
+              {{ section_form.section_type.label(class="form-label") }}
+              {{ section_form.section_type(class="form-select", id="detail-section-type") }}
+            </div>
+            <div class="mb-3">
+              {{ section_form.heading.label(class="form-label") }}
+              {{ section_form.heading(class="form-control", placeholder="Optional heading") }}
+            </div>
+            <div class="mb-3">
+              {{ section_form.body.label(class="form-label") }}
+              {{ section_form.body(class="form-control font-monospace", rows=6,
+                                   id="detail-section-body") }}
+              <div class="form-text" id="detail-body-hint">{{ section_form.body.description }}</div>
+            </div>
+            <div class="mb-4" id="detail-meta-field">
+              {{ section_form.extra.label(class="form-label") }}
+              {{ section_form.extra(class="form-control", placeholder="e.g. python") }}
+              <div class="form-text">{{ section_form.extra.description }}</div>
+            </div>
+            <div class="d-flex gap-2">
+              {{ section_form.submit(class="btn btn-primary btn-sm") }}
+              <button type="button" class="btn btn-sm btn-outline-secondary"
+                      data-bs-toggle="collapse" data-bs-target="#detail-add-section">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   {% endif %}
 
 </div>
@@ -157,6 +232,27 @@
       media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/highlight.min.js"></script>
 <script>
+  // Section type hints for the inline Add section panel
+  (function () {
+    var typeEl = document.getElementById('detail-section-type');
+    var metaEl = document.getElementById('detail-meta-field');
+    var hintEl = document.getElementById('detail-body-hint');
+    if (!typeEl) return;
+    var hints = {
+      text:     'Markdown content — supports **bold**, _italic_, [links](url), etc.',
+      features: 'One feature per line. Blank lines are ignored.',
+      image:    'Full URL of the image to display.',
+      code:     'Paste your code here.'
+    };
+    function update() {
+      var t = typeEl.value;
+      if (hintEl) hintEl.textContent = hints[t] || '';
+      if (metaEl) metaEl.style.display = (t === 'code' || t === 'image') ? '' : 'none';
+    }
+    typeEl.addEventListener('change', update);
+    update();
+  })();
+
   document.addEventListener('DOMContentLoaded', function () {
     // Respect the page's current Bootstrap theme
     var theme = document.documentElement.getAttribute('data-bs-theme');
