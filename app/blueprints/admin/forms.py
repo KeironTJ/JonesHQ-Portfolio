@@ -48,6 +48,17 @@ class ProjectForm(FlaskForm):
         validators=[Optional()],
         description="Lower numbers appear first.",
     )
+    status = SelectField(
+        "Status",
+        choices=[
+            ("planning",       "Planning"),
+            ("in_development", "In Development"),
+            ("live",           "Live"),
+            ("parked",         "Parked"),
+            ("archived",       "Archived"),
+        ],
+        default="in_development",
+    )
     is_visible = BooleanField("Visible on portfolio", default=True)
     submit = SubmitField("Save Project")
 

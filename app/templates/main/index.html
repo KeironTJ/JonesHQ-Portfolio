@@ -68,7 +68,18 @@
                 <i class="bi {{ project.icon | default('bi-code-square') }} fs-4 text-primary"></i>
               </div>
 
-              <h3 class="h5 fw-bold mb-2">{{ project.title }}</h3>
+              <div class="d-flex align-items-start justify-content-between mb-2">
+                <h3 class="h5 fw-bold mb-0">{{ project.title }}</h3>
+                {% set status_map = {
+                    'planning':       ('bg-secondary-subtle text-secondary-emphasis', 'Planning'),
+                    'in_development': ('bg-primary-subtle text-primary-emphasis',     'In Development'),
+                    'live':           ('bg-success-subtle text-success-emphasis',      'Live'),
+                    'parked':         ('bg-warning-subtle text-warning-emphasis',      'Parked'),
+                    'archived':       ('bg-secondary-subtle text-secondary-emphasis',  'Archived'),
+                } %}
+                {% set sc = status_map.get(project.status, ('bg-secondary-subtle text-secondary-emphasis', project.status)) %}
+                <span class="badge {{ sc[0] }} ms-2 flex-shrink-0">{{ sc[1] }}</span>
+              </div>
               <p class="text-muted small flex-grow-1 mb-3">{{ project.description }}</p>
 
               <div class="mb-3 d-flex flex-wrap gap-1">

@@ -54,6 +54,7 @@ def project_new():
             repo_url=form.repo_url.data or None,
             order=form.order.data if form.order.data is not None else 0,
             is_visible=form.is_visible.data,
+            status=form.status.data,
         )
         db.session.add(project)
         db.session.commit()
@@ -89,6 +90,7 @@ def project_edit(id):
         project.repo_url = form.repo_url.data or None
         project.order = form.order.data if form.order.data is not None else 0
         project.is_visible = form.is_visible.data
+        project.status = form.status.data
         db.session.commit()
         flash(f"Project '{project.title}' updated.", "success")
         return redirect(url_for("admin.project_edit", id=project.id))

@@ -119,9 +119,9 @@
             </div>
           </div>
 
-          <!-- Order + Visibility -->
+          <!-- Order + Status + Visibility -->
           <div class="row g-3 mb-4 align-items-end">
-            <div class="col-sm-4">
+            <div class="col-sm-3">
               {{ form.order.label(class="form-label") }}
               {{ form.order(class="form-control" + (" is-invalid" if form.order.errors else "")) }}
               {% for error in form.order.errors %}
@@ -129,7 +129,14 @@
               {% endfor %}
               <div class="form-text">{{ form.order.description }}</div>
             </div>
-            <div class="col-sm-8 pb-1">
+            <div class="col-sm-4">
+              {{ form.status.label(class="form-label") }}
+              {{ form.status(class="form-select" + (" is-invalid" if form.status.errors else "")) }}
+              {% for error in form.status.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-sm-5 pb-1">
               <div class="form-check">
                 {{ form.is_visible(class="form-check-input") }}
                 {{ form.is_visible.label(class="form-check-label") }}

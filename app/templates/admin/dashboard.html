@@ -31,6 +31,7 @@
               <th style="width:3rem" class="text-center text-muted small">#</th>
               <th style="width:2.5rem"></th>
               <th>Title / Slug</th>
+              <th class="d-none d-sm-table-cell">Status</th>
               <th class="d-none d-md-table-cell">Tags</th>
               <th class="text-center" style="width:7rem">Visible</th>
               <th class="text-end" style="width:9rem">Actions</th>
@@ -52,6 +53,19 @@
                   <span class="fw-semibold">{{ project.title }}</span>
                   <br>
                   <span class="text-muted font-monospace small">/{{ project.slug }}</span>
+                </td>
+
+                <!-- Status -->
+                <td class="d-none d-sm-table-cell">
+                  {% set status_map = {
+                      'planning':       ('bg-secondary-subtle text-secondary-emphasis', 'Planning'),
+                      'in_development': ('bg-primary-subtle text-primary-emphasis',     'In Development'),
+                      'live':           ('bg-success-subtle text-success-emphasis',      'Live'),
+                      'parked':         ('bg-warning-subtle text-warning-emphasis',      'Parked'),
+                      'archived':       ('bg-secondary-subtle text-secondary-emphasis',  'Archived'),
+                  } %}
+                  {% set sc = status_map.get(project.status, ('bg-secondary-subtle text-secondary-emphasis', project.status)) %}
+                  <span class="badge {{ sc[0] }}">{{ sc[1] }}</span>
                 </td>
 
                 <!-- Tags (hidden on small screens) -->
