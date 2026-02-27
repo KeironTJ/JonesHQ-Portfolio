@@ -160,7 +160,8 @@ def section_add(id):
             uploaded = _save_upload(request.files.get("image_file"))
             if uploaded:
                 body = uploaded
-        max_order = db.session.query(db.func.max(ProjectSection.order)).filter_by(project_id=id).scalar() or -1
+        _max = db.session.query(db.func.max(ProjectSection.order)).filter_by(project_id=id).scalar()
+        max_order = _max if _max is not None else -1
         section = ProjectSection(
             project_id=project.id,
             heading=form.heading.data or None,
@@ -231,18 +232,23 @@ def section_move(sid):
     siblings = (
         ProjectSection.query
         .filter_by(project_id=section.project_id)
-        .order_by(ProjectSection.order)
+        .order_by(ProjectSection.order, ProjectSection.id)
         .all()
     )
+
+    # Normalise order values if duplicates exist (caused by the `or -1` bug)
+    if len({s.order for s in siblings}) < len(siblings):
+        for i, s in enumerate(siblings):
+            s.order = i
+
     idx = next((i for i, s in enumerate(siblings) if s.id == section.id), None)
     if idx is None:
-        return redirect(url_for("admin.project_edit", id=section.project_id))
+        return redirect(next_url)
 
     swap_idx = idx - 1 if direction == "up" else idx + 1
     if 0 <= swap_idx < len(siblings):
-        # Swap order values
         siblings[idx].order, siblings[swap_idx].order = siblings[swap_idx].order, siblings[idx].order
-        db.session.commit()
+    db.session.commit()
     return redirect(next_url)
 
 

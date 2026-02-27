@@ -63,61 +63,56 @@
     <div class="d-flex flex-column gap-4">
       {% for section in project.sections %}
 
-        <div>
+        <section class="jhq-feature-card p-4 p-md-5">
 
-        {# ── Admin toolbar (per section) ───────────────────────────────────── #}
-        {% if current_user.is_authenticated %}
-          <div class="d-flex justify-content-end gap-1 mb-2">
-            <form method="post" action="{{ url_for('admin.section_move', sid=section.id) }}">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <input type="hidden" name="direction" value="up">
-              <input type="hidden" name="next" value="{{ request.path }}">
-              <button class="btn btn-sm btn-outline-secondary" title="Move up"
-                      {% if loop.first %}disabled{% endif %}>
-                <i class="bi bi-chevron-up"></i>
-              </button>
-            </form>
-            <form method="post" action="{{ url_for('admin.section_move', sid=section.id) }}">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <input type="hidden" name="direction" value="down">
-              <input type="hidden" name="next" value="{{ request.path }}">
-              <button class="btn btn-sm btn-outline-secondary" title="Move down"
-                      {% if loop.last %}disabled{% endif %}>
-                <i class="bi bi-chevron-down"></i>
-              </button>
-            </form>
-            <a href="{{ url_for('admin.section_edit', sid=section.id, next=request.path) }}"
-               class="btn btn-sm btn-outline-primary" title="Edit section">
-              <i class="bi bi-pencil"></i>
-            </a>
-            <form method="post" action="{{ url_for('admin.section_delete', sid=section.id) }}"
-                  onsubmit="return confirm('Delete this section?')">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <input type="hidden" name="next" value="{{ request.path }}">
-              <button class="btn btn-sm btn-outline-danger" title="Delete section">
-                <i class="bi bi-trash"></i>
-              </button>
-            </form>
-          </div>
-        {% endif %}
+          {# ── Admin toolbar (inside card, no stacking issues) ─────────────── #}
+          {% if current_user.is_authenticated %}
+            <div class="d-flex justify-content-end gap-1 mb-3">
+              <form method="post" action="{{ url_for('admin.section_move', sid=section.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="direction" value="up">
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button class="btn btn-sm btn-outline-secondary" title="Move up"
+                        {% if loop.first %}disabled{% endif %}>
+                  <i class="bi bi-chevron-up"></i>
+                </button>
+              </form>
+              <form method="post" action="{{ url_for('admin.section_move', sid=section.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="direction" value="down">
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button class="btn btn-sm btn-outline-secondary" title="Move down"
+                        {% if loop.last %}disabled{% endif %}>
+                  <i class="bi bi-chevron-down"></i>
+                </button>
+              </form>
+              <a href="{{ url_for('admin.section_edit', sid=section.id, next=request.path) }}"
+                 class="btn btn-sm btn-outline-primary" title="Edit section">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <form method="post" action="{{ url_for('admin.section_delete', sid=section.id) }}"
+                    onsubmit="return confirm('Delete this section?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button class="btn btn-sm btn-outline-danger" title="Delete section">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </form>
+            </div>
+          {% endif %}
 
-        {# ── Text section ──────────────────────────────────────────────────── #}
-        {% if section.section_type == 'text' %}
-          <section class="jhq-feature-card p-4 p-md-5">
-            {% if section.heading %}
-              <h2 class="h4 fw-bold mb-3">{{ section.heading }}</h2>
-            {% endif %}
+          {# ── Shared heading ──────────────────────────────────────────────── #}
+          {% if section.heading %}
+            <h2 class="h4 fw-bold mb-3">{{ section.heading }}</h2>
+          {% endif %}
+
+          {# ── Type-specific content ───────────────────────────────────────── #}
+          {% if section.section_type == 'text' %}
             <div class="prose text-muted">
               {{ section.body | markdown | safe }}
             </div>
-          </section>
 
-        {# ── Feature list section ──────────────────────────────────────────── #}
-        {% elif section.section_type == 'features' %}
-          <section class="jhq-feature-card p-4 p-md-5">
-            {% if section.heading %}
-              <h2 class="h4 fw-bold mb-3">{{ section.heading }}</h2>
-            {% endif %}
+          {% elif section.section_type == 'features' %}
             <ul class="list-unstyled mb-0">
               {% for line in section.body.splitlines() %}
                 {% set item = line.strip() %}
@@ -129,14 +124,8 @@
                 {% endif %}
               {% endfor %}
             </ul>
-          </section>
 
-        {# ── Image section ─────────────────────────────────────────────────── #}
-        {% elif section.section_type == 'image' %}
-          <section class="jhq-feature-card p-4 p-md-5">
-            {% if section.heading %}
-              <h2 class="h4 fw-bold mb-3">{{ section.heading }}</h2>
-            {% endif %}
+          {% elif section.section_type == 'image' %}
             <figure class="mb-0 text-center">
               <img src="{{ section.body | e }}"
                    alt="{{ section.meta or section.heading or project.title }}"
@@ -147,14 +136,8 @@
                 <figcaption class="text-muted small mt-2">{{ section.meta }}</figcaption>
               {% endif %}
             </figure>
-          </section>
 
-        {# ── Code section ──────────────────────────────────────────────────── #}
-        {% elif section.section_type == 'code' %}
-          <section class="jhq-feature-card p-4 p-md-5">
-            {% if section.heading %}
-              <h2 class="h4 fw-bold mb-3">{{ section.heading }}</h2>
-            {% endif %}
+          {% elif section.section_type == 'code' %}
             {% if section.meta %}
               <div class="d-flex align-items-center gap-2 mb-2">
                 <span class="badge bg-secondary-subtle text-secondary-emphasis font-monospace">
@@ -163,11 +146,11 @@
               </div>
             {% endif %}
             <pre class="rounded p-3 mb-0" style="overflow-x: auto;"><code class="language-{{ section.meta or 'plaintext' }}">{{ section.body | e }}</code></pre>
-          </section>
 
-        {% endif %}
+          {% endif %}
 
-        </div>
+        </section>
+
       {% endfor %}
     </div>
 
