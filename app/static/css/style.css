@@ -85,23 +85,18 @@
   padding: 0.2em 0.55em;
 }
 
-/* ── Skill badges ─────────────────────────────────────────── */
-.jhq-skill-badge {
-  display: inline-flex;
-  align-items: center;
-  font-size: 0.85rem;
-  font-weight: 500;
-  padding: 0.35em 0.8em;
-  border-radius: 2rem;
-  background-color: color-mix(in srgb, var(--jhq-primary) 10%, transparent);
-  color: var(--bs-body-color);
-  border: 1px solid color-mix(in srgb, var(--jhq-primary) 20%, transparent);
+/* ── Skill cards ──────────────────────────────────────────── */
+.jhq-skill-card {
+  background-color: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--jhq-radius);
   transition: var(--jhq-transition);
 }
 
-.jhq-skill-badge:hover {
-  background-color: color-mix(in srgb, var(--jhq-primary) 20%, transparent);
+.jhq-skill-card:hover {
   border-color: var(--jhq-primary);
+  box-shadow: var(--jhq-card-shadow-hover);
+  transform: translateY(-2px);
 }
 
 /* ── Footer ───────────────────────────────────────────────── */

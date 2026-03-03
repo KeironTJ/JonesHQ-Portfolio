@@ -41,7 +41,12 @@
                 <i class="bi bi-code-slash fs-5" id="add-icon-preview"></i>
               </span>
             </div>
-            <div class="form-text">{{ form.icon.description }}</div>
+            <div class="form-text">
+              {{ form.icon.description }}
+              <a href="https://icons.getbootstrap.com/" target="_blank" rel="noopener" class="ms-1">
+                Browse icons <i class="bi bi-box-arrow-up-right"></i>
+              </a>
+            </div>
           </div>
 
           <div class="mb-3">
@@ -68,7 +73,8 @@
     <!-- ── Skill list ─────────────────────────────────────────────────────── -->
     <div class="col-lg-8">
       {% if skills %}
-        {% set categories = skills | map(attribute='category') | list | unique | list %}
+        {% set categories = [] %}
+        {% for s in skills %}{% if s.category not in categories %}{% set _ = categories.append(s.category) %}{% endif %}{% endfor %}
         {% for cat in categories %}
           <div class="mb-4">
             <h2 class="h6 fw-bold text-muted text-uppercase small letter-spacing-1 mb-2">

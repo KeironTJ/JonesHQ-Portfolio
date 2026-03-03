@@ -142,7 +142,7 @@ class SkillForm(FlaskForm):
     icon = StringField(
         "Icon class",
         validators=[Optional(), Length(max=64)],
-        description="Bootstrap Icons class, e.g. bi-python or bi-database.",
+        description="Bootstrap Icons class, e.g. bi-filetype-py, bi-database, bi-code-slash, bi-terminal.",
     )
     category = StringField(
         "Category",
