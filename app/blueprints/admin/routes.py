@@ -11,8 +11,10 @@ from app.models.project import Project
 from app.models.project_section import ProjectSection
 from app.models.settings import SiteSettings
 
+from app.models.skill import Skill
+
 from . import admin_bp
-from .forms import ProjectForm, ProjectSectionForm, SettingsForm
+from .forms import ProjectForm, ProjectSectionForm, SettingsForm, SkillForm
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp", "svg"}
 
@@ -269,8 +271,74 @@ def settings():
         site_settings.github_url = form.github_url.data or None
         site_settings.linkedin_url = form.linkedin_url.data or None
         site_settings.twitter_url = form.twitter_url.data or None
+        site_settings.contact_email = form.contact_email.data or None
+        site_settings.skills_heading = form.skills_heading.data or "Skills"
         db.session.commit()
         flash("Settings saved.", "success")
         return redirect(url_for("admin.settings"))
 
     return render_template("admin/settings.html", form=form)
+
+
+# ── Skills ────────────────────────────────────────────────────────────────────
+
+@admin_bp.route("/skills")
+@login_required
+@admin_required
+def skills():
+    all_skills = Skill.query.order_by(Skill.category, Skill.order, Skill.name).all()
+    form = SkillForm()
+    return render_template("admin/skills.html", skills=all_skills, form=form)
+
+
+@admin_bp.route("/skills/add", methods=["POST"])
+@login_required
+@admin_required
+def skill_add():
+    form = SkillForm()
+    if form.validate_on_submit():
+        skill = Skill(
+            name=form.name.data,
+            icon=form.icon.data or None,
+            category=form.category.data or None,
+            order=form.order.data if form.order.data is not None else 0,
+            is_visible=form.is_visible.data,
+        )
+        db.session.add(skill)
+        db.session.commit()
+        flash(f"Skill '{skill.name}' added.", "success")
+    else:
+        for field_errors in form.errors.values():
+            for error in field_errors:
+                flash(error, "danger")
+    return redirect(url_for("admin.skills"))
+
+
+@admin_bp.route("/skills/<int:id>/edit", methods=["GET", "POST"])
+@login_required
+@admin_required
+def skill_edit(id):
+    skill = db.get_or_404(Skill, id)
+    form = SkillForm(obj=skill)
+    if form.validate_on_submit():
+        skill.name = form.name.data
+        skill.icon = form.icon.data or None
+        skill.category = form.category.data or None
+        skill.order = form.order.data if form.order.data is not None else 0
+        skill.is_visible = form.is_visible.data
+        db.session.commit()
+        flash(f"Skill '{skill.name}' updated.", "success")
+        return redirect(url_for("admin.skills"))
+    return render_template("admin/skill_edit.html", form=form, skill=skill)
+
+
+@admin_bp.route("/skills/<int:id>/delete", methods=["POST"])
+@login_required
+@admin_required
+def skill_delete(id):
+    skill = db.get_or_404(Skill, id)
+    name = skill.name
+    db.session.delete(skill)
+    db.session.commit()
+    flash(f"Skill '{name}' deleted.", "info")
+    return redirect(url_for("admin.skills"))

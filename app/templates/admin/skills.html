@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Skills — Admin{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <div class="d-flex align-items-center mb-4 gap-3">
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>Back
+    </a>
+    <div>
+      <p class="text-primary fw-semibold small text-uppercase mb-0">Admin</p>
+      <h1 class="h4 fw-bold mb-0">Skills</h1>
+    </div>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- ── Add skill form ─────────────────────────────────────────────────── -->
+    <div class="col-lg-4">
+      <div class="jhq-feature-card p-4">
+        <h2 class="h6 fw-bold mb-3">Add Skill</h2>
+        <form method="post" action="{{ url_for('admin.skill_add') }}" novalidate>
+          {{ form.hidden_tag() }}
+
+          <div class="mb-3">
+            {{ form.name.label(class="form-label") }}
+            {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else ""),
+                         placeholder="Python") }}
+            {% for error in form.name.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="mb-3">
+            {{ form.icon.label(class="form-label") }}
+            <div class="input-group">
+              {{ form.icon(class="form-control", placeholder="bi-code-slash", id="add-icon-input") }}
+              <span class="input-group-text">
+                <i class="bi bi-code-slash fs-5" id="add-icon-preview"></i>
+              </span>
+            </div>
+            <div class="form-text">{{ form.icon.description }}</div>
+          </div>
+
+          <div class="mb-3">
+            {{ form.category.label(class="form-label") }}
+            {{ form.category(class="form-control", placeholder="Languages") }}
+            <div class="form-text">{{ form.category.description }}</div>
+          </div>
+
+          <div class="mb-3">
+            {{ form.order.label(class="form-label") }}
+            {{ form.order(class="form-control", style="width:5rem;") }}
+          </div>
+
+          <div class="mb-3 form-check">
+            {{ form.is_visible(class="form-check-input") }}
+            {{ form.is_visible.label(class="form-check-label") }}
+          </div>
+
+          {{ form.submit(class="btn btn-primary w-100") }}
+        </form>
+      </div>
+    </div>
+
+    <!-- ── Skill list ─────────────────────────────────────────────────────── -->
+    <div class="col-lg-8">
+      {% if skills %}
+        {% set categories = skills | map(attribute='category') | list | unique | list %}
+        {% for cat in categories %}
+          <div class="mb-4">
+            <h2 class="h6 fw-bold text-muted text-uppercase small letter-spacing-1 mb-2">
+              {{ cat or 'Uncategorised' }}
+            </h2>
+            <div class="jhq-feature-card p-0 overflow-hidden">
+              <table class="table table-sm mb-0 align-middle">
+                <thead class="table-active">
+                  <tr>
+                    <th class="ps-3">Skill</th>
+                    <th>Category</th>
+                    <th>Order</th>
+                    <th>Visible</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for skill in skills if skill.category == cat %}
+                    <tr>
+                      <td class="ps-3">
+                        {% if skill.icon %}
+                          <i class="bi {{ skill.icon }} text-primary me-2"></i>
+                        {% endif %}
+                        {{ skill.name }}
+                      </td>
+                      <td class="text-muted small">{{ skill.category or '—' }}</td>
+                      <td class="text-muted small">{{ skill.order }}</td>
+                      <td>
+                        {% if skill.is_visible %}
+                          <i class="bi bi-eye text-success"></i>
+                        {% else %}
+                          <i class="bi bi-eye-slash text-muted"></i>
+                        {% endif %}
+                      </td>
+                      <td class="text-end pe-3">
+                        <a href="{{ url_for('admin.skill_edit', id=skill.id) }}"
+                           class="btn btn-sm btn-outline-secondary me-1">
+                          <i class="bi bi-pencil"></i>
+                        </a>
+                        <form action="{{ url_for('admin.skill_delete', id=skill.id) }}"
+                              method="post" class="d-inline"
+                              onsubmit="return confirm('Delete {{ skill.name }}?')">
+                          {{ form.hidden_tag() }}
+                          <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="jhq-feature-card p-5 text-center text-muted">
+          <i class="bi bi-stars fs-1 d-block mb-3 opacity-25"></i>
+          <p class="mb-0">No skills yet. Add one using the form.</p>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    var input   = document.getElementById('add-icon-input');
+    var preview = document.getElementById('add-icon-preview');
+    if (!input || !preview) return;
+    input.addEventListener('input', function () {
+      preview.className = 'bi ' + (input.value.trim() || 'bi-code-slash') + ' fs-5';
+    });
+  })();
+</script>
+{% endblock %}

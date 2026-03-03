@@ -26,6 +26,8 @@ class SiteSettings(db.Model):
     github_url = db.Column(db.String(256), nullable=True)
     linkedin_url = db.Column(db.String(256), nullable=True)
     twitter_url = db.Column(db.String(256), nullable=True)
+    contact_email = db.Column(db.String(256), nullable=True)
+    skills_heading = db.Column(db.String(128), nullable=True, default="Skills")
 
     @classmethod
     def get(cls) -> "SiteSettings":

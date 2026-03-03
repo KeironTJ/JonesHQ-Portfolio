@@ -99,6 +99,33 @@
             {% endfor %}
           </div>
 
+          <hr class="my-4">
+
+          <!-- Contact & Skills -->
+          <h2 class="h6 fw-bold text-muted text-uppercase small letter-spacing-1 mb-3">
+            Contact &amp; Skills
+          </h2>
+
+          <div class="mb-3">
+            {{ form.contact_email.label(class="form-label") }}
+            {{ form.contact_email(class="form-control" + (" is-invalid" if form.contact_email.errors else ""),
+                                  placeholder="hello@example.com") }}
+            {% for error in form.contact_email.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+            <div class="form-text">{{ form.contact_email.description }}</div>
+          </div>
+
+          <div class="mb-4">
+            {{ form.skills_heading.label(class="form-label") }}
+            {{ form.skills_heading(class="form-control" + (" is-invalid" if form.skills_heading.errors else ""),
+                                   placeholder="Skills") }}
+            {% for error in form.skills_heading.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+            <div class="form-text">{{ form.skills_heading.description }}</div>
+          </div>
+
           {{ form.submit(class="btn btn-primary") }}
 
         </form>

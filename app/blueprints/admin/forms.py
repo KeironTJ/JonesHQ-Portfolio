@@ -124,4 +124,31 @@ class SettingsForm(FlaskForm):
         "Twitter / X URL",
         validators=[Optional(), URL(message="Enter a valid URL or leave blank.")],
     )
+    contact_email = StringField(
+        "Contact email",
+        validators=[Optional(), Length(max=256)],
+        description="Displayed in the contact section. Leave blank to hide the section.",
+    )
+    skills_heading = StringField(
+        "Skills section heading",
+        validators=[Optional(), Length(max=128)],
+        description="Heading shown above the skills grid. Defaults to 'Skills'.",
+    )
     submit = SubmitField("Save Settings")
+
+
+class SkillForm(FlaskForm):
+    name = StringField("Skill name", validators=[DataRequired(), Length(max=64)])
+    icon = StringField(
+        "Icon class",
+        validators=[Optional(), Length(max=64)],
+        description="Bootstrap Icons class, e.g. bi-python or bi-database.",
+    )
+    category = StringField(
+        "Category",
+        validators=[Optional(), Length(max=64)],
+        description="Optional grouping label, e.g. 'Languages', 'Frameworks'.",
+    )
+    order = IntegerField("Display order", default=0, validators=[Optional()])
+    is_visible = BooleanField("Show on portfolio", default=True)
+    submit = SubmitField("Save Skill")

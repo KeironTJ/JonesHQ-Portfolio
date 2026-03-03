@@ -2,6 +2,7 @@ from flask import abort, render_template
 from flask_login import current_user
 
 from app.models.project import Project
+from app.models.skill import Skill
 
 from . import main_bp
 
@@ -20,7 +21,13 @@ def index():
         .order_by(Project.order, Project.created_at)
         .all()
     )
-    return render_template("main/index.html", projects=projects)
+    skills = (
+        Skill.query
+        .filter_by(is_visible=True)
+        .order_by(Skill.category, Skill.order, Skill.name)
+        .all()
+    )
+    return render_template("main/index.html", projects=projects, skills=skills)
 
 
 @main_bp.route("/projects/<slug>")

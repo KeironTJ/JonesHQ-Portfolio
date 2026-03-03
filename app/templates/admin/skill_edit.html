@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Skill — Admin{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <div class="d-flex align-items-center mb-4 gap-3">
+    <a href="{{ url_for('admin.skills') }}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>Back
+    </a>
+    <div>
+      <p class="text-primary fw-semibold small text-uppercase mb-0">Admin</p>
+      <h1 class="h4 fw-bold mb-0">Edit Skill — {{ skill.name }}</h1>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="jhq-feature-card p-4">
+      <form method="post" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+          {{ form.name.label(class="form-label") }}
+          {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+          {% for error in form.name.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="mb-3">
+          {{ form.icon.label(class="form-label") }}
+          <div class="input-group">
+            {{ form.icon(class="form-control", id="edit-icon-input") }}
+            <span class="input-group-text">
+              <i class="bi {{ skill.icon or 'bi-code-slash' }} fs-5" id="edit-icon-preview"></i>
+            </span>
+          </div>
+          <div class="form-text">{{ form.icon.description }}</div>
+        </div>
+
+        <div class="mb-3">
+          {{ form.category.label(class="form-label") }}
+          {{ form.category(class="form-control") }}
+          <div class="form-text">{{ form.category.description }}</div>
+        </div>
+
+        <div class="mb-3">
+          {{ form.order.label(class="form-label") }}
+          {{ form.order(class="form-control", style="width:5rem;") }}
+        </div>
+
+        <div class="mb-4 form-check">
+          {{ form.is_visible(class="form-check-input") }}
+          {{ form.is_visible.label(class="form-check-label") }}
+        </div>
+
+        {{ form.submit(class="btn btn-primary") }}
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    var input   = document.getElementById('edit-icon-input');
+    var preview = document.getElementById('edit-icon-preview');
+    if (!input || !preview) return;
+    input.addEventListener('input', function () {
+      preview.className = 'bi ' + (input.value.trim() || 'bi-code-slash') + ' fs-5';
+    });
+  })();
+</script>
+{% endblock %}
