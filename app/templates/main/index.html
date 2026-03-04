@@ -1,6 +1,19 @@
 {% extends "base.html" %}
 
-{% block title %}JonesHQ Portfolio{% endblock %}
+{% block title %}{{ settings.display_name }} | Portfolio{% endblock %}
+
+{% block head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": {{ settings.display_name | tojson }},
+  "url": {{ request.url_root | tojson }},
+  "description": {{ settings.tagline | tojson }},
+  "sameAs": [{% set comma = joiner() %}{% if settings.github_url %}{{ comma() }}{{ settings.github_url | tojson }}{% endif %}{% if settings.linkedin_url %}{{ comma() }}{{ settings.linkedin_url | tojson }}{% endif %}{% if settings.twitter_url %}{{ comma() }}{{ settings.twitter_url | tojson }}{% endif %}]
+}
+</script>
+{% endblock %}
 
 {% block content %}
 
